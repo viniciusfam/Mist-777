@@ -357,12 +357,12 @@ function runDealerPhase(room, emitGameUpdate) {
     room.dealerHand.push(drawCard(room.shoe));
     emitGameUpdate(room);
 
-    // Schedule next draw (slower pacing to allow new heavy animations to finish)
-    setTimeout(drawNext, 1500);
+    // Schedule next draw
+    setTimeout(drawNext, 600);
   }
 
-  // Start drawing after 1.5s delay to allow the initial flip animation to finish
-  setTimeout(drawNext, 1500);
+  // Start drawing after 600ms delay to allow the initial flip animation to finish
+  setTimeout(drawNext, 600);
 }
 
 /**

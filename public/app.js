@@ -100,7 +100,7 @@ function renderCards(container, hand) {
         void newCardNode.offsetWidth;
         newCardNode.style.animation = 'none'; // reset
         newCardNode.offsetHeight; // trigger reflow
-        newCardNode.style.animation = 'flipCard 0.85s ease-out forwards';
+        newCardNode.style.animation = 'flipCard 0.5s ease-out forwards';
         container.replaceChild(newCardNode, existingChild);
       }
       // If it's the same state, do nothing
@@ -849,7 +849,7 @@ socket.on('game_update', (state) => {
 
   if (state.state === 'finished') {
     renderGameTable(state);
-    resultsTimeout = setTimeout(() => renderResults(state), 1800);
+    resultsTimeout = setTimeout(() => renderResults(state), 600);
   }
 });
 
