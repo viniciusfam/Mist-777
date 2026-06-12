@@ -339,7 +339,43 @@ function renderWaitingRoom(room) {
       ${isYou ? '<div class="player-slot-you">Você</div>' : ''}`;
     grid.appendChild(slot);
   });
+}
 
+function renderScoreboard(room) {
+  const tbody = document.getElementById('scoreboard-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  
+  // Sort players by sessionBalance descending
+  const sortedPlayers = [...room.players].sort((a, b) => (b.sessionBalance || 0) - (a.sessionBalance || 0));
+  
+  sortedPlayers.forEach(p => {
+    const tr = document.createElement('tr');
+    if (p.disconnected) {
+      tr.classList.add('score-ghost');
+    }
+    
+    let balClass = 'score-zero';
+    let balText = '0 ryo';
+    if (p.sessionBalance > 0) {
+      balClass = 'score-pos';
+      balText = `+ ${p.sessionBalance.toLocaleString()} ryo`;
+    } else if (p.sessionBalance < 0) {
+      balClass = 'score-neg';
+      balText = `- ${Math.abs(p.sessionBalance).toLocaleString()} ryo`;
+    }
+    
+    tr.innerHTML = `
+      <td>
+        <strong>${escapeHtml(p.nick)}</strong>
+        ${p.id === socket.id ? ' <span class="text-muted">(Você)</span>' : ''}
+        ${p.disconnected ? ' <span class="text-muted">[Saiu]</span>' : ''}
+      </td>
+      <td style="text-align: right;" class="${balClass}">${balText}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
   clearError('waiting-error');
 }
 
@@ -799,6 +835,7 @@ document.getElementById('btn-back-lobby').addEventListener('click', () => {
 let resultsTimeout = null;
 
 socket.on('game_update', (state) => {
+  renderScoreboard(state);
   // Clear any pending results screen transition if state changes
   clearTimeout(resultsTimeout);
 
@@ -878,6 +915,14 @@ document.getElementById('btn-mute').addEventListener('click', () => {
   iconOn.classList.toggle('hidden', !on);
   iconOff.classList.toggle('hidden', on);
   showToast(on ? '🔊 Som ativado' : '🔇 Som desativado');
+});
+
+// ── Scoreboard Buttons ────────────────────────────────────────────────────────
+document.getElementById('btn-open-scoreboard')?.addEventListener('click', () => {
+  document.getElementById('modal-scoreboard').classList.remove('hidden');
+});
+document.getElementById('btn-close-scoreboard')?.addEventListener('click', () => {
+  document.getElementById('modal-scoreboard').classList.add('hidden');
 });
 
 // ── Escape HTML ───────────────────────────────────────────────────────────────

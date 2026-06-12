@@ -103,12 +103,13 @@ function joinRoom(code, player) {
   if (room.players.length >= MAX_PLAYERS) return 'ROOM_FULL';
   if (room.players.find(p => p.id === player.id)) return room; // already in room
 
-  room.players.push({
     id: player.id,
     nick: player.nick,
     hand: [],
     status: 'waiting',
     isActive: false,
+    sessionBalance: 0,
+    disconnected: false,
   });
 
   return room;
@@ -123,55 +124,34 @@ function joinRoom(code, player) {
 function leaveRoom(code, playerId, emitGameUpdate) {
   const room = getRoom(code);
   if (!room) return null;
+  const player = room.players.find(p => p.id === playerId);
+  if (player) {
+    player.status = 'disconnected';
+    player.disconnected = true;
+  }
 
-  if (room.state === 'waiting') {
-    room.players = room.players.filter(p => p.id !== playerId);
+  // Se todos os jogadores da sala estiverem desconectados, deleta a sala
+  const activePlayers = room.players.filter(p => !p.disconnected);
+  if (activePlayers.length === 0) {
+    clearTurnTimer(room);
+    rooms.delete(code);
+    return null;
+  }
 
-    // Transfer creator role
-    if (room.creatorId === playerId && room.players.length > 0) {
-      room.creatorId = room.players[0].id;
+  if (room.state === 'waiting' || room.state === 'finished') {
+    // Transfer creator role if needed
+    if (room.creatorId === playerId && activePlayers.length > 0) {
+      room.creatorId = activePlayers[0].id;
     }
-
-    // Remove empty rooms
-    if (room.players.length === 0) {
-      clearTurnTimer(room);
-      rooms.delete(code);
-      return null;
-    }
-
   } else if (room.state === 'playing') {
-    const player = room.players.find(p => p.id === playerId);
-    if (player) {
-      player.status = 'disconnected';
-      player.disconnected = true;
-    }
-    // If it was this player's turn, advance
-    const activePlayer = room.players[room.currentPlayerIndex];
-    if (activePlayer && activePlayer.id === playerId) {
+    // Se for o turno do jogador, avança
+    const currentActivePlayer = room.players[room.currentPlayerIndex];
+    if (currentActivePlayer && currentActivePlayer.id === playerId) {
       clearTurnTimer(room);
       setActivePlayer(room, emitGameUpdate);
     } else {
-      // Still emit so others see the player is gone
       emitGameUpdate(room);
     }
-
-  } else if (room.state === 'finished') {
-    // Remove player from the room after the match ends
-    room.players = room.players.filter(p => p.id !== playerId);
-
-    // Transfer creator role so remaining players can start next round
-    if (room.creatorId === playerId && room.players.length > 0) {
-      room.creatorId = room.players[0].id;
-    }
-
-    // Delete room if everyone left
-    if (room.players.length === 0) {
-      rooms.delete(code);
-      return null;
-    }
-
-    // Notify remaining players that someone left
-    emitGameUpdate(room);
   }
 
   return room;
@@ -339,14 +319,37 @@ function runDealerPhase(room, emitGameUpdate) {
         room.dealerHand
       );
       room.state = 'finished';
-
-      const currentPot = room.players.filter(p => !p.disconnected).length * room.ryoAmount;
+      const activePlayers = room.players.filter(p => !p.disconnected);
+      const currentPot = activePlayers.length * room.ryoAmount;
       room.results.prize = currentPot + room.accumulatedPot;
+
+      // Update Session Balances
+      for (const p of room.players) {
+        if (p.disconnected) continue;
+        // Deduct entrance fee
+        p.sessionBalance -= room.ryoAmount;
+      }
 
       if (room.results.tieWithHouse) {
         room.accumulatedPot += currentPot;
       } else {
         room.accumulatedPot = 0;
+        
+        // Payout to winners
+        if (room.results.finalWinners.length > 0 && !room.results.houseWins) {
+          const splitPrize = Math.floor(room.results.prize / room.results.finalWinners.length);
+          for (const wid of room.results.finalWinners) {
+            const winner = room.players.find(p => p.id === wid);
+            if (winner) {
+              winner.sessionBalance += splitPrize;
+              // Natural blackjack bonus (3:2) -> 1.5x ryoAmount
+              const pr = room.results.playerResults[winner.id];
+              if (pr && pr.result === 'blackjack') {
+                winner.sessionBalance += Math.floor(room.ryoAmount * 1.5);
+              }
+            }
+          }
+        }
       }
 
       emitGameUpdate(room);
@@ -419,6 +422,7 @@ function getRoomState(room) {
       handValue: calculateHandValue(p.hand),
       status: p.status,
       isActive: p.isActive,
+      sessionBalance: p.sessionBalance || 0,
       disconnected: p.disconnected || false,
     })),
     dealerHand: room.dealerHand,

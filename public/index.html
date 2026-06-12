@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Teko:wght@400;500;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=9" />
-  <link rel="stylesheet" href="shuffle.css?v=9" />
+  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="shuffle.css?v=10" />
 </head>
 <body>
 
@@ -140,6 +140,7 @@
             <button id="btn-copy-code" class="btn-copy" title="Copiar código">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             </button>
+            <button id="btn-open-scoreboard" class="btn-icon" title="Ver Placar">🏆 Placar</button>
           </div>
           <div class="ryo-badge">
             💰 <span id="waiting-ryo">100</span> ryo por jogador
@@ -278,11 +279,37 @@
   <!-- ═══════════════════════════════════════════════
        TOAST NOTIFICATION
   ════════════════════════════════════════════════ -->
+  <!-- ── Scoreboard Modal ── -->
+  <div id="modal-scoreboard" class="modal hidden">
+    <div class="modal-content scoreboard-modal">
+      <h2>🏆 Placar da Sessão</h2>
+      <p class="text-muted" style="margin-bottom: 16px;">Ganhos e Perdas (Ryo)</p>
+      
+      <div class="scoreboard-table-wrap">
+        <table class="scoreboard-table">
+          <thead>
+            <tr>
+              <th>Jogador</th>
+              <th style="text-align: right;">Saldo</th>
+            </tr>
+          </thead>
+          <tbody id="scoreboard-body">
+            <!-- Injected rows -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btn-close-scoreboard" class="btn btn-secondary">Fechar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast"></div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="sounds.js?v=9"></script>
-  <script src="app.js?v=9"></script>
+  <script src="sounds.js?v=10"></script>
+  <script src="app.js?v=10"></script>
 
   <!-- ── Shuffle Transparency Overlay ── -->
   <div id="shuffle-overlay" class="shuffle-overlay hidden">
