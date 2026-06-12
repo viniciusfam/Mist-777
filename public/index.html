@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blackjack 21 — PvP</title>
+  <meta name="description" content="Jogo de Blackjack 21 multiplayer em tempo real entre amigos. Entre com seu nick, crie ou entre em uma sala e dispute o pote de Ryos." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Teko:wght@400;500;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=5" />
+</head>
+<body>
+
+  <!-- Névoa Global Animada -->
+  <div class="mist-layer mist-layer-1"></div>
+  <div class="mist-layer mist-layer-2"></div>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 1: NICK ENTRY
+  ════════════════════════════════════════════════ -->
+  <div id="screen-nick" class="screen active">
+    <div class="screen-bg"></div>
+    <div class="center-card">
+      <div class="logo">
+        <span class="logo-suit">♠</span>
+        <h1>Blackjack 21</h1>
+        <span class="logo-suit">♦</span>
+      </div>
+      <p class="tagline">Multiplayer · PvP · Entre Amigos</p>
+
+      <div class="form-group">
+        <label for="input-nick">Seu Nick do Jogo</label>
+        <input id="input-nick" type="text" placeholder="Ex: DarkNinja" maxlength="20" autocomplete="off" />
+      </div>
+
+      <button id="btn-enter" class="btn btn-primary btn-glow">
+        <span>Entrar na Mesa</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+
+      <p class="error-msg" id="nick-error"></p>
+    </div>
+    <div class="floating-cards">
+      <div class="fc fc1">A♠</div>
+      <div class="fc fc2">K♥</div>
+      <div class="fc fc3">Q♦</div>
+      <div class="fc fc4">J♣</div>
+      <div class="fc fc5">10♠</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 2: LOBBY
+  ════════════════════════════════════════════════ -->
+  <div id="screen-lobby" class="screen">
+    <div class="screen-bg"></div>
+    <div class="lobby-container">
+
+      <div class="lobby-header">
+        <div class="logo-sm">
+          <span>♠</span> Blackjack 21
+        </div>
+        <div class="nick-badge" id="lobby-nick-badge">
+          <span class="dot"></span>
+          <span id="lobby-nick-display"></span>
+        </div>
+      </div>
+
+      <div class="lobby-actions">
+        <button id="btn-create-room" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+          Criar Sala
+        </button>
+        <div class="join-by-code">
+          <input id="input-join-code" type="text" placeholder="Código da sala (ex: RYO-4821)" maxlength="8" autocomplete="off" />
+          <button id="btn-join-code" class="btn btn-secondary">Entrar</button>
+        </div>
+      </div>
+
+      <div class="lobby-rooms">
+        <h2>Salas Disponíveis</h2>
+        <div id="rooms-list" class="rooms-list">
+          <div class="rooms-empty">
+            <span>🃏</span>
+            <p>Nenhuma sala aberta. Seja o primeiro!</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="error-msg" id="lobby-error"></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MODAL: CREATE ROOM
+  ════════════════════════════════════════════════ -->
+  <div id="modal-create" class="modal-overlay">
+    <div class="modal-card">
+      <h2>🏰 Criar Nova Sala</h2>
+
+      <div class="form-group">
+        <label for="input-room-name">Nome da Sala</label>
+        <input id="input-room-name" type="text" placeholder="Ex: Sala dos Guerreiros" maxlength="32" autocomplete="off" />
+      </div>
+
+      <div class="form-group">
+        <label for="input-ryo">Aposta por Jogador (Ryo)</label>
+        <div class="ryo-input-wrap">
+          <span class="ryo-icon">💰</span>
+          <input id="input-ryo" type="number" placeholder="100" min="1" max="9999999" value="100" />
+          <span class="ryo-label">ryo</span>
+        </div>
+        <small>Exibido como referência para o Tesoureiro no MMO</small>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btn-create-cancel" class="btn btn-ghost">Cancelar</button>
+        <button id="btn-create-confirm" class="btn btn-primary btn-glow">Criar Sala</button>
+      </div>
+
+      <p class="error-msg" id="create-error"></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 3: WAITING ROOM (LOBBY DA SALA)
+  ════════════════════════════════════════════════ -->
+  <div id="screen-waiting" class="screen">
+    <div class="screen-bg"></div>
+    <div class="waiting-container">
+
+      <div class="waiting-header">
+        <button id="btn-leave-room" class="btn btn-ghost btn-sm">← Sair</button>
+        <div class="room-info">
+          <h2 id="waiting-room-name">Sala dos Guerreiros</h2>
+          <div class="room-code-display">
+            Código: <strong id="waiting-room-code">ABC123</strong>
+            <button id="btn-copy-code" class="btn-copy" title="Copiar código">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <div class="ryo-badge">
+            💰 <span id="waiting-ryo">100</span> ryo por jogador
+          </div>
+        </div>
+      </div>
+
+      <div class="players-grid" id="waiting-players-grid">
+        <!-- Player cards injected here -->
+      </div>
+
+      <div class="waiting-footer">
+        <p class="waiting-hint" id="waiting-hint">Aguardando o criador iniciar a partida...</p>
+        <button id="btn-start-game" class="btn btn-primary btn-glow btn-lg hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Iniciar Partida
+        </button>
+        <p class="min-players-note">Mínimo 2 jogadores para iniciar</p>
+      </div>
+
+      <p class="error-msg" id="waiting-error"></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 4: GAME TABLE
+  ════════════════════════════════════════════════ -->
+  <div id="screen-game" class="screen">
+    <div class="table-felt"></div>
+
+    <!-- Game HUD Top -->
+    <div class="game-hud-top">
+      <div class="hud-left">
+        <span class="hud-room-name" id="game-room-name">Sala</span>
+      </div>
+      <div class="hud-center">
+        <div class="ryo-pot">
+          💰 <span id="game-ryo-display">100</span> ryo / jogador
+        </div>
+      </div>
+      <div class="hud-right">
+        <span class="hud-round" id="game-round-display">Round 1</span>
+        <button id="btn-mute" class="btn-mute" title="Mute/Unmute sons">
+          <svg id="icon-sound-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <svg id="icon-sound-off" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dealer Area -->
+    <div class="dealer-area">
+      <div class="dealer-label">
+        <span class="dealer-crown">👑</span> Dealer
+        <span class="dealer-value" id="dealer-value-display">0</span>
+      </div>
+      <div class="cards-row" id="dealer-cards"></div>
+    </div>
+
+    <!-- Blackjack Banner -->
+    <div id="blackjack-banner" class="blackjack-banner hidden">
+      <div class="bj-inner">
+        <span>♠ BLACKJACK! ♠</span>
+        <small id="bj-player-name"></small>
+      </div>
+    </div>
+
+    <!-- Players Area -->
+    <div class="players-area" id="players-area">
+      <!-- Player zones injected here -->
+    </div>
+
+    <!-- Action Panel (your turn) -->
+    <div class="action-panel" id="action-panel">
+      <div class="timer-ring" id="timer-ring">
+        <svg viewBox="0 0 44 44">
+          <circle class="timer-bg" cx="22" cy="22" r="18"/>
+          <circle class="timer-fill" id="timer-circle" cx="22" cy="22" r="18"/>
+        </svg>
+        <span id="timer-count">15</span>
+      </div>
+
+      <div class="action-buttons">
+        <button id="btn-hit" class="btn btn-action btn-hit">
+          <span class="action-icon">🃏</span>
+          Hit
+        </button>
+        <button id="btn-stand" class="btn btn-action btn-stand">
+          <span class="action-icon">✋</span>
+          Stand
+        </button>
+      </div>
+
+      <div class="your-turn-label">É a sua vez!</div>
+    </div>
+
+    <!-- Waiting for others panel -->
+    <div class="waiting-panel" id="waiting-panel">
+      <div class="waiting-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <p id="waiting-panel-text">Aguardando outros jogadores...</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 5: RESULTS
+  ════════════════════════════════════════════════ -->
+  <div id="screen-results" class="screen">
+    <div class="screen-bg"></div>
+    <div class="results-container">
+
+      <div id="results-header" class="results-header">
+        <!-- Winner or House Wins -->
+      </div>
+
+      <div class="results-table">
+        <div class="results-dealer-row" id="results-dealer-row"></div>
+        <div class="results-players" id="results-players-list"></div>
+      </div>
+
+      <div class="results-ryo-info" id="results-ryo-info"></div>
+
+      <div class="results-actions">
+        <button id="btn-play-again" class="btn btn-primary btn-glow btn-lg hidden">
+          🔄 Próxima Rodada
+        </button>
+        <button id="btn-back-lobby" class="btn btn-ghost">Voltar ao Lobby</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       TOAST NOTIFICATION
+  ════════════════════════════════════════════════ -->
+  <div id="toast" class="toast"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="sounds.js?v=5"></script>
+  <script src="app.js?v=5"></script>
+</body>
+</html>
