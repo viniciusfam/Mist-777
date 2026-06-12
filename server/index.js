@@ -35,9 +35,14 @@ const io = new Server(server, {
   cors: { origin: '*' },
 });
 
-// Serve static frontend files (Caching de 1 dia ativado para Produção)
+// Serve static frontend files (Caching de 1 dia para assets, mas não para o index.html)
 app.use(express.static(path.join(__dirname, '../public'), {
-  maxAge: '1d'
+  maxAge: '1d',
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
 }));
 
 // Fallback to index.html for SPA
