@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Teko:wght@400;500;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=6" />
+  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="shuffle.css?v=7" />
 </head>
 <body>
 
@@ -108,7 +109,7 @@
         <label for="input-ryo">Aposta por Jogador (Ryo)</label>
         <div class="ryo-input-wrap">
           <span class="ryo-icon">💰</span>
-          <input id="input-ryo" type="number" placeholder="100" min="1" max="9999999" value="100" />
+          <input id="input-ryo" type="number" placeholder="10" min="1" max="999999999" value="10" />
           <span class="ryo-label">ryo</span>
         </div>
         <small>Exibido como referência para o Tesoureiro no MMO</small>
@@ -142,6 +143,9 @@
           </div>
           <div class="ryo-badge">
             💰 <span id="waiting-ryo">100</span> ryo por jogador
+          </div>
+          <div id="waiting-pot-wrap" class="ryo-badge hidden" style="background: rgba(212,168,67,0.15); border-color: var(--gold); margin-top: 8px;">
+            🎰 Rollover Acumulado: <span id="waiting-pot" class="gold">0</span> ryo
           </div>
         </div>
       </div>
@@ -279,5 +283,14 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="sounds.js?v=6"></script>
   <script src="app.js?v=6"></script>
+
+  <!-- ── Shuffle Transparency Overlay ── -->
+  <div id="shuffle-overlay" class="shuffle-overlay hidden">
+    <div class="shuffle-content">
+      <div class="shuffle-cards-icon">🃏</div>
+      <h2>Embaralhando 312 Cartas...</h2>
+      <p>Transparência total e probabilidade justa.</p>
+    </div>
+  </div>
 </body>
 </html>

@@ -41,10 +41,11 @@ function createRoom(name, ryoAmount, creator) {
   const code = generateRoomCode();
   const room = {
     code,
-    name: name.trim().substring(0, 32),
-    ryoAmount: parseInt(ryoAmount) || 100,
+    name: name.substring(0, 20),
+    ryoAmount: parseInt(ryoAmount) || 1,
+    accumulatedPot: 0,
     creatorId: creator.id,
-    state: 'waiting', // waiting | playing | finished
+    state: 'waiting', // waiting | playing | dealer_turn | finished
     players: [
       {
         id: creator.id,
@@ -338,6 +339,16 @@ function runDealerPhase(room, emitGameUpdate) {
         room.dealerHand
       );
       room.state = 'finished';
+
+      const currentPot = room.players.filter(p => !p.disconnected).length * room.ryoAmount;
+      room.results.prize = currentPot + room.accumulatedPot;
+
+      if (room.results.tieWithHouse) {
+        room.accumulatedPot += currentPot;
+      } else {
+        room.accumulatedPot = 0;
+      }
+
       emitGameUpdate(room);
       return;
     }
@@ -397,6 +408,7 @@ function getRoomState(room) {
     code: room.code,
     name: room.name,
     ryoAmount: room.ryoAmount,
+    accumulatedPot: room.accumulatedPot || 0,
     creatorId: room.creatorId,
     state: room.state,
     round: room.round,

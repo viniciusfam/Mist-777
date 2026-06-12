@@ -158,47 +158,49 @@ function runDealerTurn(hand, shoe) {
 function evaluateResults(players, dealerHand) {
   const dealerTotal = calculateFullHandValue(dealerHand);
   const dealerBusted = dealerTotal > 21;
+  const dealerNaturalBJ = isNaturalBlackjack(dealerHand);
+  const effectiveDealerTotal = dealerNaturalBJ ? 21.5 : dealerTotal;
 
   const playerResults = {};
   const winners = [];
+  const pushes = [];
 
   for (const player of players) {
     const playerTotal = calculateHandValue(player.hand);
     const playerBusted = playerTotal > 21;
     const naturalBJ = isNaturalBlackjack(player.hand);
+    const effectiveTotal = naturalBJ ? 21.5 : playerTotal;
 
     if (playerBusted) {
-      playerResults[player.id] = { result: 'bust', total: playerTotal };
-    } else if (naturalBJ && !dealerBusted && dealerTotal !== 21) {
-      playerResults[player.id] = { result: 'blackjack', total: 21 };
-      winners.push(player.id);
+      playerResults[player.id] = { result: 'bust', total: playerTotal, effectiveTotal: 0 };
     } else if (dealerBusted) {
-      // Dealer busted, non-bust players win
-      if (naturalBJ) {
-        playerResults[player.id] = { result: 'blackjack', total: 21 };
-      } else {
-        playerResults[player.id] = { result: 'win', total: playerTotal };
-      }
+      playerResults[player.id] = { result: naturalBJ ? 'blackjack' : 'win', total: playerTotal, effectiveTotal };
       winners.push(player.id);
-    } else if (playerTotal > dealerTotal) {
-      playerResults[player.id] = { result: 'win', total: playerTotal };
+    } else if (effectiveTotal > effectiveDealerTotal) {
+      playerResults[player.id] = { result: naturalBJ ? 'blackjack' : 'win', total: playerTotal, effectiveTotal };
       winners.push(player.id);
-    } else if (playerTotal === dealerTotal) {
-      playerResults[player.id] = { result: 'push', total: playerTotal };
+    } else if (effectiveTotal === effectiveDealerTotal) {
+      playerResults[player.id] = { result: 'push', total: playerTotal, effectiveTotal };
+      pushes.push(player.id);
     } else {
-      playerResults[player.id] = { result: 'lose', total: playerTotal };
+      playerResults[player.id] = { result: 'lose', total: playerTotal, effectiveTotal };
     }
   }
 
   // Determine overall winner among human players
-  // Among winners, the highest total wins. Ties = pot split.
   let finalWinners = [];
   if (winners.length > 0) {
-    const maxScore = Math.max(...winners.map(id => playerResults[id].total));
-    finalWinners = winners.filter(id => playerResults[id].total === maxScore);
+    const maxScore = Math.max(...winners.map(id => playerResults[id].effectiveTotal));
+    finalWinners = winners.filter(id => playerResults[id].effectiveTotal === maxScore);
   }
 
-  const houseWins = finalWinners.length === 0;
+  // Se não houve vencedores, mas houve empates com a casa, a casa NÃO leva o dinheiro (Rollover)
+  let tieWithHouse = false;
+  if (finalWinners.length === 0 && pushes.length > 0) {
+    tieWithHouse = true;
+  }
+
+  const houseWins = finalWinners.length === 0 && !tieWithHouse;
 
   return {
     dealerTotal,
@@ -206,6 +208,7 @@ function evaluateResults(players, dealerHand) {
     playerResults,
     finalWinners,
     houseWins,
+    tieWithHouse,
   };
 }
 

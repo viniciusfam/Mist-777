@@ -301,6 +301,15 @@ function renderWaitingRoom(room) {
   document.getElementById('waiting-room-code').textContent = room.code;
   document.getElementById('waiting-ryo').textContent = room.ryoAmount.toLocaleString();
 
+  const potWrap = document.getElementById('waiting-pot-wrap');
+  const potText = document.getElementById('waiting-pot');
+  if (room.accumulatedPot > 0) {
+    potWrap.classList.remove('hidden');
+    potText.textContent = room.accumulatedPot.toLocaleString();
+  } else {
+    potWrap.classList.add('hidden');
+  }
+
   const isCreator = room.creatorId === socket.id;
   const startBtn  = document.getElementById('btn-start-game');
   const hint      = document.getElementById('waiting-hint');
@@ -620,7 +629,13 @@ function renderResults(state) {
   const header = document.getElementById('results-header');
   header.className = 'results-header';
 
-  if (results.houseWins) {
+  if (results.tieWithHouse) {
+    header.classList.add('tie');
+    header.innerHTML = `
+      <div class="results-emoji">🎰</div>
+      <div class="results-title gold">EMPATE COM A BANCA</div>
+      <div class="results-subtitle">Ninguém superou o Dealer. O Pote vai acumular!</div>`;
+  } else if (results.houseWins) {
     header.classList.add('house-wins');
     header.innerHTML = `
       <div class="results-emoji">🏦</div>
@@ -719,25 +734,30 @@ function renderResults(state) {
 
   // ── Ryo Info ──────────────────────────────────────────────────────────────────
   const ryoInfo = document.getElementById('results-ryo-info');
-  const total = state.players.length * state.ryoAmount;
+  const prize = results.prize || (state.players.length * state.ryoAmount);
 
-  if (results.houseWins) {
+  if (results.tieWithHouse) {
     ryoInfo.innerHTML = `
-      💰 Pote total: <strong>${total.toLocaleString()} ryo</strong><br>
+      💰 Pote da rodada: <strong>${(state.players.length * state.ryoAmount).toLocaleString()} ryo</strong><br>
+      🎰 <strong>Rollover:</strong> O pote foi somado ao acumulado para a próxima mão!<br>
+      Total acumulado para a próxima: <strong>${state.accumulatedPot.toLocaleString()} ryo</strong>`;
+  } else if (results.houseWins) {
+    ryoInfo.innerHTML = `
+      💰 Pote retido: <strong>${prize.toLocaleString()} ryo</strong><br>
       🏦 A Vila recolheu o pote para o <strong>Banco de Eventos</strong>.<br>
       O Tesoureiro deve guardar os Ryos para futuras premiações em eventos.`;
   } else if (results.finalWinners.length > 1) {
-    const split = Math.floor(total / results.finalWinners.length);
+    const split = Math.floor(prize / results.finalWinners.length);
     ryoInfo.innerHTML = `
-      💰 Pote total: <strong>${total.toLocaleString()} ryo</strong><br>
-      🤝 Divisão do pote: <strong>${split.toLocaleString()} ryo</strong> para cada vencedor.
+      💰 Pote total: <strong>${prize.toLocaleString()} ryo</strong><br>
+      🤝 Divisão do pote: <strong>${split.toLocaleString()} ryo</strong> para cada vencedor.<br>
       O Tesoureiro deve distribuir igualmente.`;
   } else {
     const winner = state.players.find(p => p.id === results.finalWinners[0]);
     const pr = results.playerResults[winner?.id];
     const bjBonus = pr?.result === 'blackjack' ? ` (+ bônus 3:2 = <strong>${Math.floor(state.ryoAmount * 1.5).toLocaleString()} ryo</strong> extra)` : '';
     ryoInfo.innerHTML = `
-      💰 Pote total: <strong>${total.toLocaleString()} ryo</strong><br>
+      💰 Pote total: <strong>${prize.toLocaleString()} ryo</strong><br>
       👑 <strong>${escapeHtml(winner?.nick || '?')}</strong> leva tudo!${bjBonus}<br>
       O Tesoureiro deve fazer o trade no MMO.`;
   }
@@ -800,8 +820,20 @@ socket.on('game_update', (state) => {
     prevDealerSize = 0;
     prevPlayerStatuses = {};
     prevIsMyTurn = false;
+    
     // Show screen FIRST then render so DOM is visible
-    if (currentScreen !== 'waiting') showScreen('waiting');
+    if (currentScreen !== 'waiting') {
+      if (currentScreen === 'results') {
+        const overlay = document.getElementById('shuffle-overlay');
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+          showScreen('waiting');
+        }, 1500); // 1.5s shuffling animation
+      } else {
+        showScreen('waiting');
+      }
+    }
     renderWaitingRoom(state);
     return;
   }
