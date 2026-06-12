@@ -158,22 +158,25 @@ h1, h2 { font-family: var(--font-display); }
 }
 
 .logo h1 {
-  font-size: 2rem;
+  font-size: 3.2rem;
   font-weight: 900;
-  background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+  background: linear-gradient(135deg, #ff4d4d, #cc0000, #8a0000);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  letter-spacing: 2px;
+  letter-spacing: 4px;
+  filter: drop-shadow(0 0 12px rgba(204, 0, 0, 0.6));
+  font-style: italic;
 }
 
 .logo-suit {
-  font-size: 1.8rem;
-  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  font-size: 2.2rem;
+  background: linear-gradient(135deg, #ff4d4d, #cc0000);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: suitPulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(204, 0, 0, 0.5));
 }
 .logo-suit:last-child { animation-delay: 1.5s; }
 
@@ -364,10 +367,12 @@ input::placeholder { color: var(--text-muted); }
 
 .logo-sm {
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--gold);
-  letter-spacing: 1px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ff4d4d;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(204, 0, 0, 0.5);
+  font-style: italic;
 }
 
 .nick-badge {
