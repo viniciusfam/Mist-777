@@ -776,7 +776,12 @@ document.getElementById('btn-back-lobby').addEventListener('click', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // SOCKET EVENTS
 // ═══════════════════════════════════════════════════════════════════════════════
+let resultsTimeout = null;
+
 socket.on('game_update', (state) => {
+  // Clear any pending results screen transition if state changes
+  clearTimeout(resultsTimeout);
+
   // Capture previous state BEFORE overwriting
   const prevGameState = gameState;
   gameState = state;
@@ -812,7 +817,7 @@ socket.on('game_update', (state) => {
 
   if (state.state === 'finished') {
     renderGameTable(state);
-    setTimeout(() => renderResults(state), 1800);
+    resultsTimeout = setTimeout(() => renderResults(state), 1800);
   }
 });
 
