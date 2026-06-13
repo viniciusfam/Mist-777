@@ -200,7 +200,10 @@ function setupActionButtons(state, me) {
   // Bind Actions (clean up old first)
   const act = (action, amount = 0) => {
     socket.emit('poker_action', action, amount, res => {
-      if (res?.error) showToast(res.error);
+      if (res?.error) {
+        showToast(res.error);
+        document.getElementById('poker-action-panel').classList.add('active');
+      }
     });
     document.getElementById('poker-action-panel').classList.remove('active');
   };
