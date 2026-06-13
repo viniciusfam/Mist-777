@@ -319,11 +319,26 @@ function stopPokerTimer() {
 }
 
 function showRoundBanner(roundNum) {
-  const banner = document.getElementById('poker-round-banner');
-  const text = document.getElementById('poker-round-banner-text');
-  if (!banner || !text) return;
+  let banner = document.getElementById('poker-round-banner');
+  let text = document.getElementById('poker-round-banner-text');
+  
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'poker-round-banner';
+    banner.className = 'poker-round-banner';
+    
+    text = document.createElement('h1');
+    text.id = 'poker-round-banner-text';
+    banner.appendChild(text);
+    
+    const screenPoker = document.getElementById('screen-poker');
+    if (screenPoker) screenPoker.appendChild(banner);
+    else document.body.appendChild(banner);
+  }
   
   text.textContent = `RODADA ${roundNum}`;
+  // Force reflow
+  void banner.offsetWidth;
   banner.classList.add('show');
   
   setTimeout(() => {
