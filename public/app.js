@@ -339,6 +339,10 @@ function renderWaitingRoom(room) {
       ${isYou ? '<div class="player-slot-you">Você</div>' : ''}`;
     grid.appendChild(slot);
   });
+
+  // Always update scoreboard when rendering the waiting room
+  renderScoreboard(room);
+  clearError('waiting-error');
 }
 
 function renderScoreboard(room) {
