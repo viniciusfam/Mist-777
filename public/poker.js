@@ -52,9 +52,7 @@ function renderPokerScreen(state) {
     
     // Check if new round started to show banner
     if (state.round && state.round !== lastRoundSeen) {
-      if (lastRoundSeen !== 0 || state.round === 1) {
-        showRoundBanner(state.round);
-      }
+      showRoundBanner(state.round);
       lastRoundSeen = state.round;
     }
     
