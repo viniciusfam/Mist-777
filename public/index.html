@@ -295,22 +295,94 @@
       <h1 id="poker-round-banner-text">RODADA X</h1>
     </div>
 
-    <!-- Cheat Sheet Sidebar -->
-    <div id="poker-cheat-sheet" class="poker-cheat-sheet">
-      <h3>🏆 Ranking de Mãos</h3>
-      <ol>
-        <li><strong>Royal Flush</strong> (A♠ K♠ Q♠ J♠ T♠)</li>
-        <li><strong>Straight Flush</strong> (9♥ 8♥ 7♥ 6♥ 5♥)</li>
-        <li><strong>Quadra</strong> (K♠ K♥ K♦ K♣ 2♣)</li>
-        <li><strong>Full House</strong> (Q♠ Q♥ Q♦ 8♠ 8♥)</li>
-        <li><strong>Flush</strong> (J♠ 8♠ 5♠ 4♠ 2♠)</li>
-        <li><strong>Sequência</strong> (T♠ 9♥ 8♦ 7♣ 6♠)</li>
-        <li><strong>Trinca</strong> (J♠ J♥ J♦ 4♠ 2♣)</li>
-        <li><strong>Dois Pares</strong> (T♠ T♥ 8♠ 8♥ 3♣)</li>
-        <li><strong>Par</strong> (A♠ A♥ 9♦ 4♣ 2♠)</li>
-        <li><strong>Carta Alta</strong> (K♠ J♥ 8♦ 5♣ 3♠)</li>
-      </ol>
-      <button id="btn-toggle-cheat" class="btn btn-ghost btn-sm">Ocultar</button>
+    <!-- Premium Cheat Sheet Sidebar -->
+    <div id="poker-cheat-sheet" class="poker-cheat-sheet premium-scroll">
+      <div class="cheat-sheet-header">
+        <h3>🏆 Ranking de Mãos</h3>
+      </div>
+      
+      <div class="hand-ranks">
+        <div class="hand-rank-item">
+          <div class="hand-info"><span class="hand-number">1</span><span class="hand-name">Royal Flush</span></div>
+          <div class="hand-example">
+            <span class="mini-card">A♠</span><span class="mini-card">K♠</span><span class="mini-card">Q♠</span><span class="mini-card">J♠</span><span class="mini-card">T♠</span>
+          </div>
+          <div class="hand-desc">As 5 cartas mais altas do mesmo naipe.</div>
+        </div>
+
+        <div class="hand-rank-item">
+          <div class="hand-info"><span class="hand-number">2</span><span class="hand-name">Straight Flush</span></div>
+          <div class="hand-example">
+            <span class="mini-card red">9♥</span><span class="mini-card red">8♥</span><span class="mini-card red">7♥</span><span class="mini-card red">6♥</span><span class="mini-card red">5♥</span>
+          </div>
+          <div class="hand-desc">5 cartas seguidas do mesmo naipe.</div>
+        </div>
+
+        <div class="hand-rank-item">
+          <div class="hand-info"><span class="hand-number">3</span><span class="hand-name">Quadra</span></div>
+          <div class="hand-example">
+            <span class="mini-card">8♠</span><span class="mini-card red">8♥</span><span class="mini-card red">8♦</span><span class="mini-card">8♣</span><span class="mini-card dim">K♠</span>
+          </div>
+          <div class="hand-desc">4 cartas de mesmo valor.</div>
+        </div>
+
+        <div class="hand-rank-item">
+          <div class="hand-info"><span class="hand-number">4</span><span class="hand-name">Full House</span></div>
+          <div class="hand-example">
+            <span class="mini-card">K♠</span><span class="mini-card red">K♥</span><span class="mini-card red">K♦</span><span class="mini-card">7♣</span><span class="mini-card red">7♥</span>
+          </div>
+          <div class="hand-desc">Uma Trinca + Um Par.</div>
+        </div>
+
+        <div class="hand-rank-item">
+          <div class="hand-info"><span class="hand-number">5</span><span class="hand-name">Flush</span></div>
+          <div class="hand-example">
+            <span class="mini-card red">A♦</span><span class="mini-card red">J♦</span><span class="mini-card red">8♦</span><span class="mini-card red">4♦</span><span class="mini-card red">2♦</span>
+          </div>
+          <div class="hand-desc">5 cartas de mesmo naipe (não seguidas).</div>
+        </div>
+
+        <div class="hand-rank-item">
+          <div class="hand-info"><span class="hand-number">6</span><span class="hand-name">Sequência</span></div>
+          <div class="hand-example">
+            <span class="mini-card red">Q♥</span><span class="mini-card">J♠</span><span class="mini-card red">T♦</span><span class="mini-card">9♣</span><span class="mini-card red">8♥</span>
+          </div>
+          <div class="hand-desc">5 cartas em ordem numérica.</div>
+        </div>
+
+        <div class="hand-rank-item">
+          <div class="hand-info"><span class="hand-number">7</span><span class="hand-name">Trinca</span></div>
+          <div class="hand-example">
+            <span class="mini-card red">Q♥</span><span class="mini-card">Q♠</span><span class="mini-card red">Q♦</span><span class="mini-card dim">9♣</span><span class="mini-card dim red">4♥</span>
+          </div>
+          <div class="hand-desc">3 cartas de mesmo valor.</div>
+        </div>
+
+        <div class="hand-rank-item">
+          <div class="hand-info"><span class="hand-number">8</span><span class="hand-name">Dois Pares</span></div>
+          <div class="hand-example">
+            <span class="mini-card">J♠</span><span class="mini-card red">J♦</span><span class="mini-card red">8♥</span><span class="mini-card">8♣</span><span class="mini-card dim">4♠</span>
+          </div>
+          <div class="hand-desc">Duas duplas de cartas de mesmo valor.</div>
+        </div>
+
+        <div class="hand-rank-item">
+          <div class="hand-info"><span class="hand-number">9</span><span class="hand-name">Um Par</span></div>
+          <div class="hand-example">
+            <span class="mini-card red">A♥</span><span class="mini-card">A♠</span><span class="mini-card dim">K♣</span><span class="mini-card dim red">8♦</span><span class="mini-card dim">2♠</span>
+          </div>
+          <div class="hand-desc">Duas cartas de mesmo valor.</div>
+        </div>
+
+        <div class="hand-rank-item">
+          <div class="hand-info"><span class="hand-number">10</span><span class="hand-name">Carta Alta</span></div>
+          <div class="hand-example">
+            <span class="mini-card">A♠</span><span class="mini-card red">J♥</span><span class="mini-card">9♣</span><span class="mini-card red">5♦</span><span class="mini-card">3♠</span>
+          </div>
+          <div class="hand-desc">A maior carta avulsa ganha.</div>
+        </div>
+      </div>
+      <button id="btn-toggle-cheat" class="btn btn-ghost btn-sm" style="margin-top:10px;">Ocultar</button>
     </div>
     <button id="btn-show-cheat" class="btn btn-primary btn-sm hidden" style="position: absolute; left: 10px; top: 10px; z-index: 100;">Ver Mãos</button>
 
