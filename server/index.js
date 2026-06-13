@@ -42,6 +42,9 @@ app.use(helmet({ contentSecurityPolicy: false }));
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
+// Unique Build ID generated every time the server starts
+const SERVER_BUILD_ID = Date.now().toString();
+
 // ---- DEBUG SYSTEM ----
 const serverLogs = [];
 function logDebug(msg) {
@@ -204,6 +207,9 @@ function finishPokerRound(room) {
 
 io.on('connection', (socket) => {
   console.log(`[+] Connected: ${socket.id}`);
+
+  // Send the current server version immediately
+  socket.emit('server_version', SERVER_BUILD_ID);
 
   socket.on('set_nick', (nick, callback) => {
     if (!nick || typeof nick !== 'string' || nick.trim().length < 2)

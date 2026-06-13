@@ -7,6 +7,23 @@
 // ── Socket Connection ─────────────────────────────────────────────────────────
 const socket = io();
 
+// ─── Auto-Update Cache Buster ────────────────────────────────────────────────
+socket.on('server_version', (buildId) => {
+  const storedBuildId = localStorage.getItem('server_build_id');
+  if (storedBuildId && storedBuildId !== buildId) {
+    // New version detected!
+    localStorage.setItem('server_build_id', buildId);
+    showToast('Atualização instalada. O jogo será recarregado.', 5000);
+    setTimeout(() => {
+      // Force reload ignoring cache by appending the version to the URL
+      window.location.href = window.location.pathname + '?v=' + buildId;
+    }, 2000);
+  } else if (!storedBuildId) {
+    // First time loading the game
+    localStorage.setItem('server_build_id', buildId);
+  }
+});
+
 // ── Init Audio on first interaction (browser policy) ─────────────────────────
 document.addEventListener('click', () => Sounds.init(), { once: true });
 document.addEventListener('keydown', () => Sounds.init(), { once: true });
