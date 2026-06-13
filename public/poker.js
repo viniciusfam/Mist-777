@@ -202,7 +202,10 @@ function setupActionButtons(state, me) {
     socket.emit('poker_action', action, amount, res => {
       if (res?.error) {
         showToast(res.error);
-        document.getElementById('poker-action-panel').classList.add('active');
+        const me = pokerState?.players?.find(p => p.id === socket.id);
+        if (me && me.isActive) {
+          document.getElementById('poker-action-panel').classList.add('active');
+        }
       }
     });
     document.getElementById('poker-action-panel').classList.remove('active');
