@@ -209,10 +209,16 @@ io.on('connection', (socket) => {
     }
     info.roomCode = result.code;
     socket.join(result.code);
-    const state = getRoomState(result);
-    io.to(result.code).emit('game_update', state);
+    console.log(`[Join] ${info.nick} joined ${result.code} (gameType=${result.gameType}, state=${result.state}, pokerRound=${!!result.pokerRound})`);
+    // If a poker round is active, send poker state to the reconnecting player
+    if (result.gameType === 'poker' && result.pokerRound) {
+      emitPokerUpdate(result);
+    } else {
+      const state = getRoomState(result);
+      io.to(result.code).emit('game_update', state);
+    }
     io.emit('lobby_update', getPublicRooms());
-    callback?.({ ok: true, room: state });
+    callback?.({ ok: true, room: getRoomState(result) });
   });
 
   socket.on('start_game', (callback) => {
@@ -268,12 +274,17 @@ io.on('connection', (socket) => {
     if (!room?.pokerRound) return callback?.({ error: 'Nenhuma rodada de poker em andamento.' });
 
     try {
+      const pr = room.pokerRound;
+      const activeP = pr.players[pr.activePlayerIndex];
+      console.log(`[Poker Action] ${info.nick} (${socket.id}) -> ${action} | phase=${pr.phase} activeIdx=${pr.activePlayerIndex} expectedPlayer=${activeP?.nick}(${activeP?.id})`);
       clearPokerTimer(room.code);
       room.pokerRound = processAction(room.pokerRound, socket.id, action, amount || 0);
+      console.log(`[Poker Action] Result: phase=${room.pokerRound.phase} activeIdx=${room.pokerRound.activePlayerIndex}`);
       if (room.pokerRound.phase === 'showdown') finishPokerRound(room);
       else { schedulePokerTimer(room); emitPokerUpdate(room); }
       callback?.({ ok: true });
     } catch (err) {
+      console.log(`[Poker Action ERROR] ${info.nick}: ${err.message}`);
       callback?.({ error: err.message });
     }
   });
@@ -315,10 +326,21 @@ io.on('connection', (socket) => {
   function handleLeave(socket) {
     const info = socketInfo.get(socket.id);
     if (!info?.roomCode) return;
-    const updated = leaveRoom(info.roomCode, socket.id, emitGameUpdate);
-    socket.leave(info.roomCode);
+    const roomCode = info.roomCode;
+    const room = getRoom(roomCode);
+    const updated = leaveRoom(roomCode, socket.id, emitGameUpdate);
+    socket.leave(roomCode);
     info.roomCode = null;
-    if (updated) io.to(updated.code).emit('game_update', getRoomState(updated));
+    if (updated) {
+      // CRITICAL FIX: If a poker round is active, emit poker_update, NOT game_update
+      // game_update causes the client to switch to the blackjack screen, killing the poker game
+      if (updated.gameType === 'poker' && updated.pokerRound) {
+        console.log(`[Leave] Player left during poker round in room ${roomCode}, emitting poker_update`);
+        emitPokerUpdate(updated);
+      } else {
+        io.to(updated.code).emit('game_update', getRoomState(updated));
+      }
+    }
     io.emit('lobby_update', getPublicRooms());
   }
 });

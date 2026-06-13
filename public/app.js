@@ -859,6 +859,13 @@ socket.on('game_update', (state) => {
   gameState = state;
   myRoomCode = state.code;
 
+  // CRITICAL: If this is a poker room with an active round,
+  // do NOT change screens — only poker_update should control the poker screen.
+  if (state.gameType === 'poker' && state.state === 'playing') {
+    console.log('[game_update] Ignoring screen change for active poker round');
+    return;
+  }
+
   const currentScreen = Object.entries(screens).find(([, el]) => el.classList.contains('active'))?.[0];
 
   if (state.state === 'waiting') {
