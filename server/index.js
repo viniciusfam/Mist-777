@@ -57,13 +57,8 @@ app.get('/api/logs', (req, res) => {
   res.json(serverLogs);
 });
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '../public'), {
-  maxAge: '1d',
-  setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
-  }
-}));
+// Serve static files without aggressive caching during development/debugging
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
