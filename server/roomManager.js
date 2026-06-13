@@ -107,9 +107,22 @@ function getPublicRooms() {
 function joinRoom(code, player) {
   const room = getRoom(code);
   if (!room) return 'ROOM_NOT_FOUND';
+
+  // Check if player is already in room (reconnection)
+  const existing = room.players.find(p => p.nick === player.nick);
+  if (existing) {
+    existing.id = player.id;
+    existing.disconnected = false;
+    // Also update pokerRound if active
+    if (room.pokerRound) {
+      const rp = room.pokerRound.players.find(p => p.nick === player.nick);
+      if (rp) rp.id = player.id;
+    }
+    return room;
+  }
+
   if (room.state !== 'waiting') return 'GAME_IN_PROGRESS';
   if (room.players.length >= MAX_PLAYERS) return 'ROOM_FULL';
-  if (room.players.find(p => p.id === player.id)) return room; // already in room
 
   room.players.push({
     id: player.id,
