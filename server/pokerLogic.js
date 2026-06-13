@@ -166,9 +166,13 @@ function calculateSidePots(contributions) {
 // ─── Game State Factory ───────────────────────────────────────────────────────
 function createPokerRound(players, dealerIndex) {
   const deck = shuffleDeck(createDeck());
+  // Only deal to players who have enough chips and are connected
   const activePlayers = players.filter(p => p.chips > 0 && !p.disconnected);
-
-  // Deal 2 hole cards to each player
+  
+  if (activePlayers.length < 2) {
+    throw new Error('Not enough active players with chips to start poker');
+  }
+  
   const playerStates = activePlayers.map(p => ({
     id: p.id,
     nick: p.nick,
