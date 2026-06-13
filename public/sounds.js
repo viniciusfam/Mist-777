@@ -432,6 +432,49 @@ const Sounds = (() => {
     }, 500);
   }
 
+  /**
+   * 🃏 Call — wooden table knock (two quick thuds)
+   */
+  function call() {
+    if (!enabled) return;
+    const c = getCtx();
+    const t = c.currentTime;
+    osc('square', 120, t, 0.05, 0.3, 0.001);
+    osc('square', 120, t + 0.15, 0.05, 0.3, 0.001);
+    noise(0.05, 0.1, 800, 'bandpass');
+    setTimeout(() => noise(0.05, 0.1, 800, 'bandpass'), 150);
+  }
+
+  /**
+   * 🔥 All In — heavy dramatic thud + escalating chime
+   */
+  function allIn() {
+    if (!enabled) return;
+    const c = getCtx();
+    const t = c.currentTime;
+    // Heavy thud
+    osc('sawtooth', 80, t, 0.5, 0.6, 0.001);
+    osc('sine', 50, t, 0.6, 0.8, 0.001);
+    // Escalating chime
+    osc('sine', 440, t, 0.2, 0.3, 0.001);
+    osc('sine', 554.37, t + 0.1, 0.2, 0.3, 0.001); // C#5
+    osc('sine', 659.25, t + 0.2, 0.4, 0.4, 0.001); // E5
+  }
+
+  /**
+   * 🐔 Fold — Chicken cluck / squawk
+   */
+  function fold() {
+    if (!enabled) return;
+    const c = getCtx();
+    const t = c.currentTime;
+    // A squawky, nasally sound
+    osc('sawtooth', 400, t, 0.1, 0.2, 0.001);
+    osc('sawtooth', 350, t + 0.1, 0.1, 0.2, 0.001);
+    osc('square', 450, t + 0.2, 0.15, 0.3, 0.001);
+    noise(0.1, 0.1, 2000, 'bandpass');
+  }
+
   // Toggle sound on/off
   function toggle() {
     enabled = !enabled;
@@ -456,6 +499,9 @@ const Sounds = (() => {
     playerJoined,
     playerLeft,
     gameStart,
+    allIn,
+    call,
+    fold,
     toggle,
     isEnabled,
     init: getCtx,

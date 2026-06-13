@@ -5,12 +5,16 @@
  */
 
 let pokerState = null;
+let prevPokerState = null;
 let pokerTimerInterval = null;
 
 // Listen for direct poker updates
 socket.on('poker_update', (state) => {
   console.log('[Poker] Update:', state);
   pokerState = state;
+  
+  detectPokerSounds(prevPokerState, state);
+  prevPokerState = state;
   
   // Transition to poker screen if round started
   if (state.state === 'playing' || state.state === 'finished') {
@@ -299,4 +303,27 @@ function createCardHTML(card) {
       <div class="card-center-suit">${card.suit}</div>
     </div>
   `;
+}
+
+function detectPokerSounds(prev, curr) {
+  if (!prev) return;
+  if (!Sounds || !Sounds.isEnabled()) return;
+
+  // Play your turn if it became my turn
+  const wasMyTurn = prev.players.find(p => p.id === socket.id)?.isActive;
+  const isMyTurn = curr.players.find(p => p.id === socket.id)?.isActive;
+  if (!wasMyTurn && isMyTurn && curr.phase !== 'showdown') {
+    Sounds.yourTurn();
+  }
+
+  // Detect actions by comparing lastAction
+  curr.players.forEach(p => {
+    const pPrev = prev.players.find(x => x.id === p.id);
+    if (pPrev && p.lastAction !== pPrev.lastAction && p.lastAction) {
+      const action = p.lastAction.split(':')[0];
+      if (action === 'fold') Sounds.fold();
+      else if (action === 'call' || action === 'check' || action === 'raise') Sounds.call();
+      else if (action === 'allin') Sounds.allIn();
+    }
+  });
 }
