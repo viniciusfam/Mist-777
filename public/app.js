@@ -24,6 +24,7 @@ const screens = {
   lobby:    document.getElementById('screen-lobby'),
   waiting:  document.getElementById('screen-waiting'),
   game:     document.getElementById('screen-game'),
+  poker:    document.getElementById('screen-poker'),
   results:  document.getElementById('screen-results'),
 };
 
@@ -201,7 +202,9 @@ document.getElementById('btn-create-confirm').addEventListener('click', () => {
     return;
   }
 
-  socket.emit('create_room', { name, ryoAmount: ryo }, (res) => {
+  const gameType = document.querySelector('input[name="gameType"]:checked').value;
+
+  socket.emit('create_room', { name, ryoAmount: ryo, gameType }, (res) => {
     if (res?.error) {
       showError('create-error', res.error);
       return;
@@ -259,9 +262,13 @@ function renderRoomsList(rooms) {
   rooms.forEach(room => {
     const card = document.createElement('div');
     card.className = 'room-card';
+    const typeBadge = room.gameType === 'poker' 
+      ? '<span style="background: var(--red); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: white; margin-left: 8px;">POKER</span>'
+      : '<span style="background: var(--blue); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: white; margin-left: 8px;">21</span>';
+
     card.innerHTML = `
       <div class="room-card-info">
-        <div class="room-card-name">${escapeHtml(room.name)}</div>
+        <span class="room-card-name">${escapeHtml(room.name)}${typeBadge}</span>
         <div class="room-card-meta">
           <span class="room-card-code">${room.code}</span>
           <span>💰 ${room.ryoAmount.toLocaleString()} ryo</span>
@@ -855,6 +862,11 @@ socket.on('game_update', (state) => {
   const currentScreen = Object.entries(screens).find(([, el]) => el.classList.contains('active'))?.[0];
 
   if (state.state === 'waiting') {
+    if (state.gameType === 'poker' && currentScreen === 'poker') {
+      // If we are already on poker screen and round finished, stay there or go to waiting
+      showScreen('waiting');
+    }
+    
     // Detect player join/leave based on PREVIOUS state
     const prevCount = prevGameState?.players?.length ?? -1;
     if (prevCount >= 0 && currentScreen === 'waiting') {

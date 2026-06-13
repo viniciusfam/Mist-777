@@ -1,5 +1,5 @@
 /**
- * roomManager.js — Blackjack 21 PvP
+ * roomManager.js — Cassino Central (Blackjack + Poker)
  * Manages room lifecycle, player state, game flow, and turn timers.
  */
 
@@ -37,11 +37,12 @@ function generateRoomCode() {
  * @param {Object} creator - { id, nick }
  * @returns {Object} Room object
  */
-function createRoom(name, ryoAmount, creator) {
+function createRoom(name, ryoAmount, creator, gameType = 'blackjack') {
   const code = generateRoomCode();
   const room = {
     code,
     name: name.substring(0, 20),
+    gameType,              // 'blackjack' | 'poker'
     ryoAmount: parseInt(ryoAmount) || 1,
     accumulatedPot: 0,
     creatorId: creator.id,
@@ -51,8 +52,11 @@ function createRoom(name, ryoAmount, creator) {
         id: creator.id,
         nick: creator.nick,
         hand: [],
-        status: 'waiting', // waiting | playing | stand | bust | blackjack | done
+        status: 'waiting',
         isActive: false,
+        sessionBalance: 0,
+        chips: 0,          // Poker chips
+        disconnected: false,
       },
     ],
     dealerHand: [],
@@ -61,6 +65,9 @@ function createRoom(name, ryoAmount, creator) {
     turnTimer: null,
     round: 0,
     results: null,
+    // Poker-specific state
+    pokerRound: null,
+    dealerIndex: 0,
     createdAt: Date.now(),
   };
 
@@ -84,8 +91,9 @@ function getPublicRooms() {
     .map(r => ({
       code: r.code,
       name: r.name,
+      gameType: r.gameType || 'blackjack',
       ryoAmount: r.ryoAmount,
-      players: r.players.length,
+      players: r.players.filter(p => !p.disconnected).length,
       maxPlayers: MAX_PLAYERS,
       createdAt: r.createdAt,
     }))
@@ -110,9 +118,23 @@ function joinRoom(code, player) {
     status: 'waiting',
     isActive: false,
     sessionBalance: 0,
+    chips: 0,
     disconnected: false,
   });
 
+  return room;
+}
+
+/**
+ * Host adds chips to a player (Poker — Treasurer panel).
+ */
+function addChips(code, hostId, targetPlayerId, amount) {
+  const room = getRoom(code);
+  if (!room) return 'ROOM_NOT_FOUND';
+  if (room.creatorId !== hostId) return 'NOT_CREATOR';
+  const target = room.players.find(p => p.id === targetPlayerId);
+  if (!target) return 'PLAYER_NOT_FOUND';
+  target.chips = (target.chips || 0) + Math.max(0, parseInt(amount) || 0);
   return room;
 }
 
@@ -411,6 +433,7 @@ function getRoomState(room) {
   return {
     code: room.code,
     name: room.name,
+    gameType: room.gameType || 'blackjack',
     ryoAmount: room.ryoAmount,
     accumulatedPot: room.accumulatedPot || 0,
     creatorId: room.creatorId,
@@ -424,6 +447,7 @@ function getRoomState(room) {
       status: p.status,
       isActive: p.isActive,
       sessionBalance: p.sessionBalance || 0,
+      chips: p.chips || 0,
       disconnected: p.disconnected || false,
     })),
     dealerHand: room.dealerHand,
@@ -450,5 +474,6 @@ module.exports = {
   playerAction,
   resetRoom,
   getRoomState,
+  addChips,
   TURN_TIMEOUT_MS,
 };

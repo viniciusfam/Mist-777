@@ -106,13 +106,33 @@
       </div>
 
       <div class="form-group">
-        <label for="input-ryo">Aposta por Jogador (Ryo)</label>
+        <label>Modalidade de Jogo</label>
+        <div class="game-type-selector">
+          <label class="game-type-option">
+            <input type="radio" name="gameType" value="blackjack" checked />
+            <div class="gt-content">
+              <span class="gt-icon">🃏</span>
+              <span>Blackjack 21</span>
+            </div>
+          </label>
+          <label class="game-type-option">
+            <input type="radio" name="gameType" value="poker" />
+            <div class="gt-content">
+              <span class="gt-icon">🂡</span>
+              <span>Hold'em Poker</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="input-ryo">Aposta Base (Entrada/Ryo)</label>
         <div class="ryo-input-wrap">
           <span class="ryo-icon">💰</span>
           <input id="input-ryo" type="number" placeholder="10" min="1" max="999999999" value="10" />
           <span class="ryo-label">ryo</span>
         </div>
-        <small>Exibido como referência para o Tesoureiro no MMO</small>
+        <small>Poker: Valor usado como referência para 1.000 fichas no tesoureiro.</small>
       </div>
 
       <div class="modal-actions">
@@ -268,7 +288,111 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════
-       SCREEN 5: RESULTS
+       SCREEN POKER: TEXAS HOLD'EM TABLE
+  ════════════════════════════════════════════════ -->
+  <div id="screen-poker" class="screen">
+    <!-- Cheat Sheet Sidebar -->
+    <div id="poker-cheat-sheet" class="poker-cheat-sheet">
+      <h3>🏆 Ranking de Mãos</h3>
+      <ol>
+        <li><strong>Royal Flush</strong> (A♠ K♠ Q♠ J♠ T♠)</li>
+        <li><strong>Straight Flush</strong> (9♥ 8♥ 7♥ 6♥ 5♥)</li>
+        <li><strong>Quadra</strong> (K♠ K♥ K♦ K♣ 2♣)</li>
+        <li><strong>Full House</strong> (Q♠ Q♥ Q♦ 8♠ 8♥)</li>
+        <li><strong>Flush</strong> (J♠ 8♠ 5♠ 4♠ 2♠)</li>
+        <li><strong>Sequência</strong> (T♠ 9♥ 8♦ 7♣ 6♠)</li>
+        <li><strong>Trinca</strong> (J♠ J♥ J♦ 4♠ 2♣)</li>
+        <li><strong>Dois Pares</strong> (T♠ T♥ 8♠ 8♥ 3♣)</li>
+        <li><strong>Par</strong> (A♠ A♥ 9♦ 4♣ 2♠)</li>
+        <li><strong>Carta Alta</strong> (K♠ J♥ 8♦ 5♣ 3♠)</li>
+      </ol>
+      <button id="btn-toggle-cheat" class="btn btn-ghost btn-sm">Ocultar</button>
+    </div>
+    <button id="btn-show-cheat" class="btn btn-primary btn-sm hidden" style="position: absolute; left: 10px; top: 10px; z-index: 100;">Ver Mãos</button>
+
+    <!-- Poker Table Felt -->
+    <div class="poker-table-felt">
+      <div class="poker-table-border">
+        
+        <!-- Community Center -->
+        <div class="poker-center-area">
+          <div class="poker-pot-display">
+            Pote: <strong id="poker-pot" class="gold">0</strong>
+            <div id="poker-side-pots" class="poker-side-pots"></div>
+          </div>
+          <div class="cards-row community-cards" id="poker-community-cards">
+            <!-- 5 cards injected here -->
+          </div>
+          <div class="poker-current-bet" id="poker-current-bet-display">
+            Aposta na Mesa: <strong>0</strong>
+          </div>
+        </div>
+
+        <!-- Player Seats Container -->
+        <div class="poker-seats-container" id="poker-seats-container">
+          <!-- 8 seats injected here positioned radially -->
+        </div>
+
+      </div>
+    </div>
+
+    <!-- HUD Overlay Top Right -->
+    <div class="poker-hud">
+      <div class="hud-room-name" id="poker-room-name">Sala</div>
+      <span class="hud-round" id="poker-round-display">Round 1</span>
+      <button id="btn-scoreboard-poker" class="btn-icon" title="Ver Placar">🏆</button>
+      <button id="btn-mute-poker" class="btn-mute" title="Mute/Unmute sons">🔊</button>
+      <button id="btn-treasurer-open" class="btn btn-secondary btn-sm hidden">🏦 Tesouraria</button>
+    </div>
+
+    <!-- Bottom Action Panel -->
+    <div class="poker-action-panel" id="poker-action-panel">
+      <!-- Info Left -->
+      <div class="poker-action-info">
+        <div class="timer-ring">
+          <svg viewBox="0 0 44 44">
+            <circle class="timer-bg" cx="22" cy="22" r="18"/>
+            <circle class="timer-fill" id="poker-timer-circle" cx="22" cy="22" r="18"/>
+          </svg>
+          <span id="poker-timer-count">20</span>
+        </div>
+        <div class="your-turn-label">Sua vez de falar!</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="poker-action-buttons">
+        <button id="btn-poker-fold" class="btn btn-action btn-poker-fold">
+          <span class="action-icon">🏳️</span> Desistir (Fold)
+        </button>
+        <button id="btn-poker-check" class="btn btn-action btn-poker-check">
+          <span class="action-icon">✋</span> Passar (Check)
+        </button>
+        <button id="btn-poker-call" class="btn btn-action btn-poker-call">
+          <span class="action-icon">💰</span> Pagar <span id="poker-call-amount">0</span>
+        </button>
+        <div class="poker-raise-group">
+          <button id="btn-poker-raise" class="btn btn-action btn-poker-raise">
+            <span class="action-icon">⬆️</span> Aumentar (Raise)
+          </button>
+          <div class="raise-controls">
+            <input type="range" id="poker-raise-slider" min="0" max="1000" step="25" value="0">
+            <span id="poker-raise-val" class="gold">0</span>
+          </div>
+        </div>
+        <button id="btn-poker-allin" class="btn btn-action btn-poker-allin">
+          <span class="action-icon">🔥</span> All-In!
+        </button>
+      </div>
+    </div>
+    
+    <!-- Waiting panel when not your turn -->
+    <div class="poker-waiting-panel" id="poker-waiting-panel">
+      Aguardando outros jogadores...
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 5: RESULTS (BLACKJACK / POKER)
   ════════════════════════════════════════════════ -->
   <div id="screen-results" class="screen">
     <div class="screen-bg"></div>
@@ -324,11 +448,45 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════
+       MODAL: TREASURER (POKER ONLY)
+  ════════════════════════════════════════════════ -->
+  <div id="modal-treasurer" class="modal-overlay">
+    <div class="modal-card">
+      <h2>🏦 Painel do Tesoureiro</h2>
+      <p style="margin-bottom: 15px; color: var(--text-secondary); font-size: 0.9rem;">
+        Converta Ryos recebidos no MMO em fichas para a mesa de Poker.
+      </p>
+
+      <div class="form-group">
+        <label for="treasurer-player-select">Selecionar Jogador</label>
+        <select id="treasurer-player-select" style="width: 100%; padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); color: white; border-radius: 6px; font-size: 1rem;">
+          <!-- Options injected via JS -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="treasurer-chips-input">Adicionar Fichas</label>
+        <div class="ryo-input-wrap">
+          <span class="ryo-icon">🪙</span>
+          <input id="treasurer-chips-input" type="number" placeholder="1000" min="1" max="999999" value="1000" />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btn-treasurer-close" class="btn btn-ghost">Fechar</button>
+        <button id="btn-treasurer-confirm" class="btn btn-primary btn-glow" style="background: var(--gold); border-color: var(--gold); color: black;">Creditar Fichas</button>
+      </div>
+      <p class="error-msg" id="treasurer-error"></p>
+    </div>
+  </div>
+
   <div id="toast" class="toast"></div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="sounds.js?v=12"></script>
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
+  <script src="poker.js?v=1"></script>
 
   <!-- ── Shuffle Transparency Overlay ── -->
   <div id="shuffle-overlay" class="shuffle-overlay hidden">
