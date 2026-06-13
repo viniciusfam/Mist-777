@@ -250,7 +250,18 @@ io.on('connection', (socket) => {
   });
 
   // Poker action: fold | check | call | raise | allin
-  socket.on('poker_action', ({ action, amount }, callback) => {
+  socket.on('poker_action', (actionArg, amountArg, callbackArg) => {
+    let action, amount, callback;
+    if (typeof actionArg === 'object' && actionArg !== null) {
+      action = actionArg.action;
+      amount = actionArg.amount;
+      callback = amountArg;
+    } else {
+      action = actionArg;
+      amount = amountArg;
+      callback = callbackArg;
+    }
+
     const info = socketInfo.get(socket.id);
     if (!info?.roomCode) return callback?.({ error: 'Você não está em uma sala.' });
     const room = getRoom(info.roomCode);
