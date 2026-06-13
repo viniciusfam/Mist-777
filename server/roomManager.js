@@ -113,10 +113,11 @@ function joinRoom(code, player) {
   if (existing) {
     existing.id = player.id;
     existing.disconnected = false;
-    // Also update pokerRound if active
+
+    // IMPORTANT: Sync new socket ID to poker round if it exists!
     if (room.pokerRound) {
-      const rp = room.pokerRound.players.find(p => p.nick === player.nick);
-      if (rp) rp.id = player.id;
+      const prPlayer = room.pokerRound.players.find(p => p.nick === player.nick);
+      if (prPlayer) prPlayer.id = player.id;
     }
     return room;
   }
