@@ -180,13 +180,21 @@ function leaveRoom(code, playerId, emitGameUpdate) {
       room.creatorId = activePlayers[0].id;
     }
   } else if (room.state === 'playing') {
-    // Se for o turno do jogador, avança
-    const currentActivePlayer = room.players[room.currentPlayerIndex];
-    if (currentActivePlayer && currentActivePlayer.id === playerId) {
-      clearTurnTimer(room);
-      setActivePlayer(room, emitGameUpdate);
-    } else {
-      emitGameUpdate(room);
+    // CRITICAL: Only run blackjack turn logic for blackjack games!
+    // For poker games, the poker engine handles its own turn management.
+    // Calling setActivePlayer (blackjack function) during poker would CRASH the server.
+    if (room.gameType !== 'poker') {
+      const currentActivePlayer = room.players[room.currentPlayerIndex];
+      if (currentActivePlayer && currentActivePlayer.id === playerId) {
+        clearTurnTimer(room);
+        setActivePlayer(room, emitGameUpdate);
+      } else {
+        emitGameUpdate(room);
+      }
+    }
+    // For poker: just transfer creator if needed, the poker timer handles turn advancement
+    if (room.creatorId === playerId && activePlayers.length > 0) {
+      room.creatorId = activePlayers[0].id;
     }
   }
 

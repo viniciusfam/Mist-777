@@ -3,6 +3,14 @@
  * Express + Socket.IO entry point.
  */
 
+// CRASH PROTECTION: Never let the server die from an uncaught error
+process.on('uncaughtException', (err) => {
+  console.error('[FATAL] Uncaught Exception — server stayed alive:', err);
+});
+process.on('unhandledRejection', (err) => {
+  console.error('[FATAL] Unhandled Rejection — server stayed alive:', err);
+});
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
