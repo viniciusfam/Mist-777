@@ -107,6 +107,11 @@ function evaluateFive(cards) {
 }
 
 function bestHandFrom7(cards) {
+  // If everyone folded, we might not have 5 cards to evaluate. Return dummy hand.
+  if (cards.length < 5) {
+    return { rank: -1, name: 'Venceu por Fold', tiebreakers: [] };
+  }
+
   // Pick best 5-card combination out of 7
   const combos = getCombinations(cards, 5);
   let best = null;
