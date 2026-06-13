@@ -429,20 +429,26 @@ const Sounds = (() => {
       osc('sine', 80, kt,        0.3, 0.5, 0.001);
       osc('sine', 60, kt + 0.05, 0.3, 0.3, 0.001);
       noise(0.08, 0.25, 3000, 'highpass');
-    }, 500);
-  }
+  const literalCall = new Audio('/sounds/call.wav');
+  literalCall.volume = 0.8;
+  const literalFold = new Audio('/sounds/fold.mp3');
+  literalFold.volume = 0.8;
 
   /**
-   * 🃏 Call — wooden table knock (two quick thuds)
+   * 🃏 Call — wooden table knock (literal WAV or fallback)
    */
   function call() {
     if (!enabled) return;
-    const c = getCtx();
-    const t = c.currentTime;
-    osc('square', 120, t, 0.05, 0.3, 0.001);
-    osc('square', 120, t + 0.15, 0.05, 0.3, 0.001);
-    noise(0.05, 0.1, 800, 'bandpass');
-    setTimeout(() => noise(0.05, 0.1, 800, 'bandpass'), 150);
+    literalCall.currentTime = 0;
+    literalCall.play().catch(() => {
+      // Fallback
+      const c = getCtx();
+      const t = c.currentTime;
+      osc('square', 120, t, 0.05, 0.3, 0.001);
+      osc('square', 120, t + 0.15, 0.05, 0.3, 0.001);
+      noise(0.05, 0.1, 800, 'bandpass');
+      setTimeout(() => noise(0.05, 0.1, 800, 'bandpass'), 150);
+    });
   }
 
   /**
@@ -462,17 +468,20 @@ const Sounds = (() => {
   }
 
   /**
-   * 🐔 Fold — Chicken cluck / squawk
+   * 🐔 Fold — Chicken cluck / squawk (literal MP3 or fallback)
    */
   function fold() {
     if (!enabled) return;
-    const c = getCtx();
-    const t = c.currentTime;
-    // A squawky, nasally sound
-    osc('sawtooth', 400, t, 0.1, 0.2, 0.001);
-    osc('sawtooth', 350, t + 0.1, 0.1, 0.2, 0.001);
-    osc('square', 450, t + 0.2, 0.15, 0.3, 0.001);
-    noise(0.1, 0.1, 2000, 'bandpass');
+    literalFold.currentTime = 0;
+    literalFold.play().catch(() => {
+      // Fallback
+      const c = getCtx();
+      const t = c.currentTime;
+      osc('sawtooth', 400, t, 0.1, 0.2, 0.001);
+      osc('sawtooth', 350, t + 0.1, 0.1, 0.2, 0.001);
+      osc('square', 450, t + 0.2, 0.15, 0.3, 0.001);
+      noise(0.1, 0.1, 2000, 'bandpass');
+    });
   }
 
   // Toggle sound on/off
