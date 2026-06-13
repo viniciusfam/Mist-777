@@ -189,8 +189,17 @@ function createPokerRound(players, dealerIndex) {
 
   // Determine blinds
   const numPlayers = playerStates.length;
-  const sbIndex = (dealerIndex + 1) % numPlayers;
-  const bbIndex = (dealerIndex + 2) % numPlayers;
+  let sbIndex, bbIndex;
+  
+  if (numPlayers === 2) {
+    // Heads Up: Dealer is Small Blind
+    sbIndex = dealerIndex;
+    bbIndex = (dealerIndex + 1) % 2;
+  } else {
+    // Standard 3+ players
+    sbIndex = (dealerIndex + 1) % numPlayers;
+    bbIndex = (dealerIndex + 2) % numPlayers;
+  }
 
   // Post blinds
   function postBlind(playerIdx, amount) {
