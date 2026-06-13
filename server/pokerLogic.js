@@ -329,13 +329,16 @@ function findNextActive(players, currentIndex) {
 
 function isBettingClosed(round, nextIndex) {
   if (nextIndex === -1) return true;
-  // Betting closes when we reach the last raiser and everyone has matched
-  const allMatched = round.players
-    .filter(p => p.status === 'active')
-    .every(p => p.bet >= round.currentBet);
   
-  // Also ensure at least one full orbit after last raise
-  return allMatched && nextIndex === round.lastRaiserIndex;
+  const activePlayers = round.players.filter(p => p.status === 'active');
+  
+  // Everyone active has matched the highest bet
+  const allMatched = activePlayers.every(p => p.bet >= round.currentBet);
+  
+  // Everyone active has acted at least once this street
+  const allActed = activePlayers.every(p => p.lastAction !== null);
+  
+  return allMatched && allActed;
 }
 
 function advancePhase(round) {
@@ -363,8 +366,11 @@ function advancePhase(round) {
   round.activePlayerIndex = firstActIdx;
   round.lastRaiserIndex = firstActIdx; // Betting closes when we reach first actor again
   round.actionCount = 0;
-  // Reset bets for new street
-  for (const p of round.players) p.bet = 0;
+  // Reset bets and actions for new street
+  for (const p of round.players) {
+    p.bet = 0;
+    p.lastAction = null;
+  }
 
   return round;
 }

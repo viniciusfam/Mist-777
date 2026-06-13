@@ -145,7 +145,12 @@ function renderPokerScreen(state) {
     document.getElementById('poker-waiting-panel').textContent = winnersText || 'Showdown!';
     document.getElementById('poker-waiting-panel').classList.add('active');
   } else {
-    document.getElementById('poker-waiting-panel').textContent = 'Aguardando outros jogadores...';
+    const activePlayer = state.players.find(p => p.isActive);
+    if (activePlayer) {
+      document.getElementById('poker-waiting-panel').textContent = `Vez de ${activePlayer.nick}...`;
+    } else {
+      document.getElementById('poker-waiting-panel').textContent = 'Aguardando...';
+    }
   }
 }
 

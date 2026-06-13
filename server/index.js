@@ -124,7 +124,7 @@ function schedulePokerTimer(room) {
       if (room.pokerRound.phase === 'showdown') finishPokerRound(room);
       else { schedulePokerTimer(room); emitPokerUpdate(room); }
     } catch (_) { /* ignore */ }
-  }, 20000));
+  }, 30000));
 }
 
 function clearPokerTimer(code) {
