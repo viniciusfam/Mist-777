@@ -42,6 +42,21 @@ app.use(helmet({ contentSecurityPolicy: false }));
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
+// ---- DEBUG SYSTEM ----
+const serverLogs = [];
+function logDebug(msg) {
+  const line = new Date().toISOString() + ' | ' + msg;
+  serverLogs.push(line);
+  if (serverLogs.length > 500) serverLogs.shift();
+  console.log(line);
+}
+// ----------------------
+
+// DEBUG ENDPOINT
+app.get('/api/logs', (req, res) => {
+  res.json(serverLogs);
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, '../public'), {
   maxAge: '1d',
@@ -293,15 +308,15 @@ io.on('connection', (socket) => {
     try {
       const pr = room.pokerRound;
       const activeP = pr.players[pr.activePlayerIndex];
-      console.log(`[Poker Action] ${info.nick} (${socket.id}) -> ${action} | phase=${pr.phase} activeIdx=${pr.activePlayerIndex} expectedPlayer=${activeP?.nick}(${activeP?.id})`);
+      logDebug(`[Poker Action] ${info.nick} (${socket.id}) -> ${action} | phase=${pr.phase} activeIdx=${pr.activePlayerIndex} expectedPlayer=${activeP?.nick}(${activeP?.id})`);
       clearPokerTimer(room.code);
       room.pokerRound = processAction(room.pokerRound, socket.id, action, amount || 0);
-      console.log(`[Poker Action] Result: phase=${room.pokerRound.phase} activeIdx=${room.pokerRound.activePlayerIndex}`);
+      logDebug(`[Poker Action] Result: phase=${room.pokerRound.phase} activeIdx=${room.pokerRound.activePlayerIndex}`);
       if (room.pokerRound.phase === 'showdown') finishPokerRound(room);
       else { schedulePokerTimer(room); emitPokerUpdate(room); }
       callback?.({ ok: true });
     } catch (err) {
-      console.log(`[Poker Action ERROR] ${info.nick}: ${err.message}`);
+      logDebug(`[Poker Action ERROR] ${info.nick}: ${err.message}`);
       callback?.({ error: err.message });
     }
   });
