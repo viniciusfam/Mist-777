@@ -11,6 +11,15 @@ let pokerTimerInterval = null;
 socket.on('poker_update', (state) => {
   console.log('[Poker] Update:', state);
   pokerState = state;
+  
+  // Transition to poker screen if round started
+  if (state.state === 'playing' || state.state === 'finished') {
+    if (typeof showScreen === 'function') {
+      const currentScreen = Object.entries(screens).find(([, el]) => el.classList.contains('active'))?.[0];
+      if (currentScreen !== 'poker') showScreen('poker');
+    }
+  }
+
   renderPokerScreen(state);
 });
 
