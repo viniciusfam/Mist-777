@@ -238,10 +238,15 @@ io.on('connection', (socket) => {
     if (room.creatorId !== socket.id) return callback?.({ error: 'Apenas o criador pode iniciar.' });
 
     if (room.gameType === 'poker') {
-      const active = room.players.filter(p => !p.disconnected && p.chips > 0);
-      if (active.length < 2) return callback?.({ error: 'Mínimo 2 jogadores com zfichas para iniciar.' });
-      startPokerRound(room);
-      return callback?.({ ok: true });
+      try {
+        const active = room.players.filter(p => !p.disconnected && p.chips > 0);
+        if (active.length < 2) return callback?.({ error: 'Mínimo 2 jogadores com fichas para iniciar.' });
+        startPokerRound(room);
+        return callback?.({ ok: true });
+      } catch (err) {
+        console.error('[Start Poker Error]:', err);
+        return callback?.({ error: `Server crash: ${err.message}` });
+      }
     }
 
     const result = startGame(info.roomCode, socket.id, emitGameUpdate);
