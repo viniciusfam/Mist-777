@@ -311,15 +311,25 @@ function advanceRound(round) {
   const stillActive   = round.players.filter(p => p.status === 'active');
 
   // If only 1 player left (everyone else folded), they win immediately
-  if (stillActive.length + round.players.filter(p => p.status === 'allin').length === 1 && 
-      round.players.filter(p => p.status === 'folded').length > 0 &&
-      stillActive.length === 1) {
+  const allinCount = round.players.filter(p => p.status === 'allin').length;
+  const foldedCount = round.players.filter(p => p.status === 'folded').length;
+
+  if (stillActive.length + allinCount === 1 && foldedCount > 0 && stillActive.length === 1) {
     // All others folded
     return endRound(round);
   }
+  
   if (stillActive.length === 0) {
     // Everyone is allin, run it out
     return runItOut(round);
+  }
+
+  // If only 1 player is active, but there are all-in players, and the active player has matched the bet
+  // No more betting can occur, so auto-run it out to showdown.
+  if (stillActive.length === 1 && allinCount > 0) {
+    if (stillActive[0].bet >= round.currentBet) {
+      return runItOut(round);
+    }
   }
 
   // Find next active player
