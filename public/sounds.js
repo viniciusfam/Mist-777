@@ -429,6 +429,9 @@ const Sounds = (() => {
       osc('sine', 80, kt,        0.3, 0.5, 0.001);
       osc('sine', 60, kt + 0.05, 0.3, 0.3, 0.001);
       noise(0.08, 0.25, 3000, 'highpass');
+    }, 480);
+  }
+
   const literalCall = new Audio('/sounds/call.wav');
   literalCall.volume = 0.8;
   const literalFold = new Audio('/sounds/fold.mp3');
