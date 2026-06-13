@@ -55,7 +55,7 @@ function createRoom(name, ryoAmount, creator, gameType = 'blackjack') {
         status: 'waiting',
         isActive: false,
         sessionBalance: 0,
-        chips: 0,          // Poker chips
+        chips: gameType === 'poker' ? 1000 : 0,          // Poker chips
         disconnected: false,
       },
     ],
@@ -118,7 +118,7 @@ function joinRoom(code, player) {
     status: 'waiting',
     isActive: false,
     sessionBalance: 0,
-    chips: 0,
+    chips: room.gameType === 'poker' ? 1000 : 0,
     disconnected: false,
   });
 

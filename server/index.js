@@ -224,7 +224,7 @@ io.on('connection', (socket) => {
 
     if (room.gameType === 'poker') {
       const active = room.players.filter(p => !p.disconnected && p.chips > 0);
-      if (active.length < 2) return callback?.({ error: 'Mínimo 2 jogadores com fichas para iniciar.' });
+      if (active.length < 2) return callback?.({ error: 'Mínimo 2 jogadores com zfichas para iniciar.' });
       startPokerRound(room);
       return callback?.({ ok: true });
     }
