@@ -276,21 +276,30 @@ function startPokerTimer(state) {
   const timerText = document.getElementById('poker-timer-count');
   const timerCircle = document.getElementById('poker-timer-circle');
   
-  const update = () => {
-    const elapsed = Date.now() - state.pokerTurnStart;
-    const remaining = Math.max(0, 20000 - elapsed);
+  // 40 seconds total
+  const turnDuration = 40000;
+  let remaining = turnDuration;
+  let lastFrameTime = performance.now();
+
+  const update = (now) => {
+    const delta = now - lastFrameTime;
+    lastFrameTime = now;
+    
+    remaining = Math.max(0, remaining - delta);
     const secs = Math.ceil(remaining / 1000);
     timerText.textContent = secs;
     
-    const dash = (remaining / 20000) * 113; // 113 is approx circumference of r=18
+    const dash = (remaining / turnDuration) * 113; // 113 is approx circumference of r=18
     timerCircle.style.strokeDashoffset = 113 - dash;
 
-    if (secs <= 5) timerCircle.classList.add('urgent');
+    if (secs <= 10) timerCircle.classList.add('urgent');
     else timerCircle.classList.remove('urgent');
 
-    if (remaining > 0) pokerTimerInterval = requestAnimationFrame(update);
+    if (remaining > 0) {
+      pokerTimerInterval = requestAnimationFrame(update);
+    }
   };
-  update();
+  pokerTimerInterval = requestAnimationFrame(update);
 }
 
 function stopPokerTimer() {
