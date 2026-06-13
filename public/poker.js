@@ -11,6 +11,12 @@ let pokerTimerInterval = null;
 // Listen for direct poker updates
 socket.on('poker_update', (state) => {
   console.log('[Poker] Update:', state);
+  
+  // Preserve myHand if it exists
+  if (pokerState && pokerState.myHand) {
+    state.myHand = pokerState.myHand;
+  }
+  
   pokerState = state;
   
   detectPokerSounds(prevPokerState, state);
@@ -25,6 +31,14 @@ socket.on('poker_update', (state) => {
   }
 
   renderPokerScreen(state);
+});
+
+socket.on('poker_hand', (hand) => {
+  console.log('[Poker] Received private hand:', hand);
+  if (pokerState) {
+    pokerState.myHand = hand;
+    renderPokerScreen(pokerState);
+  }
 });
 
 function renderPokerScreen(state) {

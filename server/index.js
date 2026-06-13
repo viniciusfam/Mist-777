@@ -106,9 +106,12 @@ function emitPokerUpdate(room) {
     })),
   };
 
-  // Send to each player with their private hole cards
+  // Broadcast public state to the entire room
+  io.to(room.code).emit('poker_update', base);
+
+  // Send private hole cards individually
   for (const p of pr.players) {
-    io.to(p.id).emit('poker_update', { ...base, myHand: p.hand });
+    io.to(p.id).emit('poker_hand', p.hand);
   }
 
   io.emit('lobby_update', getPublicRooms());
