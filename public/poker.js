@@ -7,6 +7,7 @@
 let pokerState = null;
 let prevPokerState = null;
 let pokerTimerInterval = null;
+let lastRoundSeen = 0;
 
 // Listen for direct poker updates
 socket.on('poker_update', (state) => {
@@ -48,6 +49,14 @@ function renderPokerScreen(state) {
     // Update HUD
     document.getElementById('poker-room-name').textContent = state.name;
     document.getElementById('poker-round-display').textContent = `Round ${state.round}`;
+    
+    // Check if new round started to show banner
+    if (state.round && state.round !== lastRoundSeen) {
+      if (lastRoundSeen !== 0 || state.round === 1) {
+        showRoundBanner(state.round);
+      }
+      lastRoundSeen = state.round;
+    }
     
     // Show/hide treasurer button
     const isCreator = state.creatorId === socket.id;
@@ -307,6 +316,19 @@ function startPokerTimer(state) {
 function stopPokerTimer() {
   if (pokerTimerInterval) cancelAnimationFrame(pokerTimerInterval);
   pokerTimerInterval = null;
+}
+
+function showRoundBanner(roundNum) {
+  const banner = document.getElementById('poker-round-banner');
+  const text = document.getElementById('poker-round-banner-text');
+  if (!banner || !text) return;
+  
+  text.textContent = `RODADA ${roundNum}`;
+  banner.classList.add('show');
+  
+  setTimeout(() => {
+    banner.classList.remove('show');
+  }, 3500);
 }
 
 // ─── DOM Events for Poker ──────────────────────────────────────────────────────
