@@ -917,7 +917,13 @@ socket.on('game_over', (state) => {
 socket.on('connect', () => {
   if (myNick) {
     // Reconnect: re-send nick
-    socket.emit('set_nick', myNick, () => {});
+    socket.emit('set_nick', myNick, () => {
+      if (myRoomCode) {
+        socket.emit('join_room', myRoomCode, (res) => {
+          if (res?.error) showToast('Erro ao reconectar na sala: ' + res.error);
+        });
+      }
+    });
   }
 });
 
