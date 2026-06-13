@@ -342,41 +342,45 @@ function renderWaitingRoom(room) {
 }
 
 function renderScoreboard(room) {
-  const tbody = document.getElementById('scoreboard-body');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-  
-  // Sort players by sessionBalance descending
+  // Build the HTML rows
   const sortedPlayers = [...room.players].sort((a, b) => (b.sessionBalance || 0) - (a.sessionBalance || 0));
-  
-  sortedPlayers.forEach(p => {
-    const tr = document.createElement('tr');
-    if (p.disconnected) {
-      tr.classList.add('score-ghost');
+
+  function buildRows(tbody) {
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (sortedPlayers.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="2" class="score-zero" style="text-align:center;">Nenhum jogador ainda.</td></tr>';
+      return;
     }
-    
-    let balClass = 'score-zero';
-    let balText = '0 ryo';
-    if (p.sessionBalance > 0) {
-      balClass = 'score-pos';
-      balText = `+ ${p.sessionBalance.toLocaleString()} ryo`;
-    } else if (p.sessionBalance < 0) {
-      balClass = 'score-neg';
-      balText = `- ${Math.abs(p.sessionBalance).toLocaleString()} ryo`;
-    }
-    
-    tr.innerHTML = `
-      <td>
-        <strong>${escapeHtml(p.nick)}</strong>
-        ${p.id === socket.id ? ' <span class="text-muted">(Você)</span>' : ''}
-        ${p.disconnected ? ' <span class="text-muted">[Saiu]</span>' : ''}
-      </td>
-      <td style="text-align: right;" class="${balClass}">${balText}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-  clearError('waiting-error');
+    sortedPlayers.forEach(p => {
+      const tr = document.createElement('tr');
+      if (p.disconnected) tr.classList.add('score-ghost');
+
+      let balClass = 'score-zero';
+      let balText = '0 ryo';
+      if (p.sessionBalance > 0) {
+        balClass = 'score-pos';
+        balText = `+ ${p.sessionBalance.toLocaleString()} ryo`;
+      } else if (p.sessionBalance < 0) {
+        balClass = 'score-neg';
+        balText = `- ${Math.abs(p.sessionBalance).toLocaleString()} ryo`;
+      }
+
+      tr.innerHTML = `
+        <td>
+          <strong>${escapeHtml(p.nick)}</strong>
+          ${p.id === socket.id ? ' <span class="text-muted">(Você)</span>' : ''}
+          ${p.disconnected ? ' <span class="text-muted">[Saiu]</span>' : ''}
+        </td>
+        <td style="text-align: right;" class="${balClass}">${balText}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Update BOTH tables (inline on waiting room + modal for game screen)
+  buildRows(document.getElementById('scoreboard-body'));
+  buildRows(document.getElementById('scoreboard-body-modal'));
 }
 
 // ── Copy Room Code ────────────────────────────────────────────────────────────
@@ -918,11 +922,20 @@ document.getElementById('btn-mute').addEventListener('click', () => {
 });
 
 // ── Scoreboard Buttons ────────────────────────────────────────────────────────
-document.getElementById('btn-open-scoreboard')?.addEventListener('click', () => {
+function openScoreboard() {
   document.getElementById('modal-scoreboard').classList.remove('hidden');
-});
-document.getElementById('btn-close-scoreboard')?.addEventListener('click', () => {
+}
+function closeScoreboard() {
   document.getElementById('modal-scoreboard').classList.add('hidden');
+}
+
+document.getElementById('btn-open-scoreboard')?.addEventListener('click', openScoreboard);
+document.getElementById('btn-scoreboard-game')?.addEventListener('click', openScoreboard);
+document.getElementById('btn-close-scoreboard')?.addEventListener('click', closeScoreboard);
+
+// Close modal when clicking outside
+document.getElementById('modal-scoreboard')?.addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeScoreboard();
 });
 
 // ── Escape HTML ───────────────────────────────────────────────────────────────

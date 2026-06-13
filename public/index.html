@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Teko:wght@400;500;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=10" />
-  <link rel="stylesheet" href="shuffle.css?v=10" />
+  <link rel="stylesheet" href="style.css?v=11" />
+  <link rel="stylesheet" href="shuffle.css?v=11" />
 </head>
 <body>
 
@@ -155,6 +155,24 @@
         <!-- Player cards injected here -->
       </div>
 
+      <!-- ── Scoreboard inline na sala de espera ── -->
+      <div class="scoreboard-inline">
+        <h3 class="scoreboard-inline-title">🏆 Placar da Sessão</h3>
+        <div class="scoreboard-table-wrap">
+          <table class="scoreboard-table">
+            <thead>
+              <tr>
+                <th>Jogador</th>
+                <th style="text-align: right;">Saldo</th>
+              </tr>
+            </thead>
+            <tbody id="scoreboard-body">
+              <tr><td colspan="2" class="score-zero" style="text-align:center;">Jogue uma rodada para ver os saldos!</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="waiting-footer">
         <p class="waiting-hint" id="waiting-hint">Aguardando o criador iniciar a partida...</p>
         <button id="btn-start-game" class="btn btn-primary btn-glow btn-lg hidden">
@@ -186,6 +204,7 @@
       </div>
       <div class="hud-right">
         <span class="hud-round" id="game-round-display">Round 1</span>
+        <button id="btn-scoreboard-game" class="btn-icon" title="Ver Placar">🏆</button>
         <button id="btn-mute" class="btn-mute" title="Mute/Unmute sons">
           <svg id="icon-sound-on" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
           <svg id="icon-sound-off" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
@@ -293,7 +312,7 @@
               <th style="text-align: right;">Saldo</th>
             </tr>
           </thead>
-          <tbody id="scoreboard-body">
+          <tbody id="scoreboard-body-modal">
             <!-- Injected rows -->
           </tbody>
         </table>
@@ -308,8 +327,8 @@
   <div id="toast" class="toast"></div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="sounds.js?v=10"></script>
-  <script src="app.js?v=10"></script>
+  <script src="sounds.js?v=11"></script>
+  <script src="app.js?v=11"></script>
 
   <!-- ── Shuffle Transparency Overlay ── -->
   <div id="shuffle-overlay" class="shuffle-overlay hidden">

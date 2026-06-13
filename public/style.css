@@ -135,6 +135,20 @@
   border-color: var(--gold);
 }
 
+/* ── Scoreboard Inline (Sala de Espera) ── */
+.scoreboard-inline {
+  width: 100%;
+  margin-top: 8px;
+}
+.scoreboard-inline-title {
+  font-family: var(--font-display);
+  color: var(--gold);
+  font-size: 1rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
 @keyframes drift-reverse {
   0% { transform: translateX(-50vw); }
   100% { transform: translateX(0); }
