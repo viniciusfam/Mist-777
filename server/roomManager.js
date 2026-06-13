@@ -103,6 +103,7 @@ function joinRoom(code, player) {
   if (room.players.length >= MAX_PLAYERS) return 'ROOM_FULL';
   if (room.players.find(p => p.id === player.id)) return room; // already in room
 
+  room.players.push({
     id: player.id,
     nick: player.nick,
     hand: [],
