@@ -414,14 +414,41 @@ function createCardHTML(card) {
 }
 
 function detectPokerSounds(prev, curr) {
-  if (!prev) return;
+  if (!curr) return;
   if (!Sounds || !Sounds.isEnabled()) return;
+
+  // If this is the very first state (e.g. game just started)
+  if (!prev) {
+    if (curr.phase === 'preflop') Sounds.gameStart();
+    return;
+  }
 
   // Play your turn if it became my turn
   const wasMyTurn = prev.players.find(p => p.id === socket.id)?.isActive;
   const isMyTurn = curr.players.find(p => p.id === socket.id)?.isActive;
   if (!wasMyTurn && isMyTurn && curr.phase !== 'showdown') {
     Sounds.yourTurn();
+  }
+
+  // Detect Community Card deals (Flop, Turn, River)
+  const prevComm = prev.communityCards || [];
+  const currComm = curr.communityCards || [];
+  if (currComm.length > prevComm.length && curr.phase !== 'showdown') {
+    // Deal sound for each new card
+    for (let i = 0; i < currComm.length - prevComm.length; i++) {
+      setTimeout(() => Sounds.cardDeal(), i * 150);
+    }
+  }
+
+  // Detect Phase change to Showdown
+  if (curr.phase === 'showdown' && prev.phase !== 'showdown') {
+    const myPayout = curr.payouts && curr.payouts[socket.id] ? curr.payouts[socket.id] : 0;
+    if (myPayout > 0) {
+      setTimeout(() => Sounds.win(), 400); // Wait a beat then play win sound
+    } else {
+      // If someone else won and we didn't
+      setTimeout(() => Sounds.houseWins(), 400);
+    }
   }
 
   // Detect actions by comparing lastAction
