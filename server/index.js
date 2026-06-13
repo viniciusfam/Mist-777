@@ -182,14 +182,21 @@ function finishPokerRound(room) {
   room.state = 'finished';
   emitPokerUpdate(room);
 
-  // Auto-return to waiting after 8s
+  // Auto-start next round or return to waiting after 8s
   setTimeout(() => {
     if (!getRoom(room.code)) return;
     const remaining = room.players.filter(p => !p.disconnected && p.chips > 0);
     room.dealerIndex = (room.dealerIndex + 1) % Math.max(1, remaining.length);
-    room.state = 'waiting';
-    room.pokerRound = null;
-    emitGameUpdate(room);
+    
+    if (remaining.length >= 2) {
+      // Auto-start next round seamlessly
+      startPokerRound(room);
+    } else {
+      // Not enough players, kick back to lobby
+      room.state = 'waiting';
+      room.pokerRound = null;
+      emitGameUpdate(room);
+    }
   }, 8000);
 }
 
