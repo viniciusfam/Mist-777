@@ -125,6 +125,9 @@ function bestHandFrom7(cards) {
 }
 
 function compareEval(a, b) {
+  if (!a && !b) return 0;
+  if (!a) return -1;
+  if (!b) return 1;
   if (a.rank !== b.rank) return a.rank - b.rank;
   for (let i = 0; i < Math.max(a.tiebreakers.length, b.tiebreakers.length); i++) {
     const diff = (a.tiebreakers[i] || 0) - (b.tiebreakers[i] || 0);
@@ -398,13 +401,18 @@ function endRound(round) {
   const notFolded = round.players.filter(p => p.status !== 'folded');
 
   // Evaluate hands for players still in
-  const evaluations = notFolded.map(p => ({
-    id: p.id,
-    nick: p.nick,
-    eval: bestHandFrom7([...p.hand, ...allCards]),
-    totalContributed: p.totalBet,
-    folded: false,
-  }));
+  const evaluations = notFolded.map(p => {
+    const combinedCards = [...p.hand, ...allCards];
+    // If someone folds preflop, we have < 5 cards. Just give a dummy eval since they win by default.
+    const handEval = combinedCards.length >= 5 ? bestHandFrom7(combinedCards) : { rank: 0, tiebreakers: [], name: 'Winner by Default' };
+    return {
+      id: p.id,
+      nick: p.nick,
+      eval: handEval,
+      totalContributed: p.totalBet,
+      folded: false,
+    };
+  });
 
   // Include folded players with 0 eligibility (for side pot calc)
   const foldedContribs = round.players
