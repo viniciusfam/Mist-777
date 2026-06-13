@@ -211,6 +211,10 @@ io.on('connection', (socket) => {
     callback?.({ ok: true, nick: cleanNick });
   });
 
+  socket.on('debug_log', (msg) => {
+    logDebug(msg);
+  });
+
   socket.on('get_rooms', (callback) => callback?.(getPublicRooms()));
 
   socket.on('create_room', ({ name, ryoAmount, gameType = 'blackjack' }, callback) => {

@@ -146,6 +146,8 @@ function renderPokerScreen(state) {
     const actionPanel = document.getElementById('poker-action-panel');
     const waitingPanel = document.getElementById('poker-waiting-panel');
 
+    socket.emit('debug_log', `[Client ${socket.id}] renderPokerScreen: phase=${state.phase}, meFound=${!!me}, meIsActive=${me?.isActive}, activePlayerIndex=${state.activePlayerIndex}`);
+
     if (actionPanel && waitingPanel) {
       if (me && me.isActive && state.phase !== 'showdown') {
         actionPanel.classList.add('active');
