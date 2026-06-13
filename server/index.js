@@ -218,7 +218,8 @@ io.on('connection', (socket) => {
     info.roomCode = result.code;
     socket.join(result.code);
     console.log(`[Join] ${info.nick} joined ${result.code} (gameType=${result.gameType}, state=${result.state}, pokerRound=${!!result.pokerRound})`);
-    // If a poker round is active, send poker state to the reconnecting player
+    
+    // If a poker round is active, send poker_update (with private hand) to this specific player
     if (result.gameType === 'poker' && result.pokerRound) {
       emitPokerUpdate(result);
     } else {

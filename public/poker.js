@@ -28,129 +28,164 @@ socket.on('poker_update', (state) => {
 });
 
 function renderPokerScreen(state) {
-  // Update HUD
-  document.getElementById('poker-room-name').textContent = state.name;
-  document.getElementById('poker-round-display').textContent = `Round ${state.round}`;
-  
-  // Show/hide treasurer button
-  const isCreator = state.creatorId === socket.id;
-  const treasurerBtn = document.getElementById('btn-treasurer-open');
-  if (isCreator) treasurerBtn.classList.remove('hidden');
-  else treasurerBtn.classList.add('hidden');
+  try {
+    if (!state || !state.players) return;
 
-  // Center area
-  document.getElementById('poker-pot').textContent = state.pot.toLocaleString();
-  document.getElementById('poker-current-bet-display').innerHTML = `Aposta: <strong>${state.currentBet}</strong>`;
-  
-  // Side pots if any
-  const sidePotsDiv = document.getElementById('poker-side-pots');
-  if (state.sidePots && state.sidePots.length > 1) {
-    sidePotsDiv.innerHTML = state.sidePots.map((p, i) => `Pot ${i+1}: ${p.amount}`).join(' | ');
-  } else {
-    sidePotsDiv.innerHTML = '';
-  }
-
-  // Community Cards
-  const commCardsDiv = document.getElementById('poker-community-cards');
-  commCardsDiv.innerHTML = state.communityCards.map(c => createCardHTML(c)).join('');
-
-  // Seats (up to 8 players radially)
-  const seatsContainer = document.getElementById('poker-seats-container');
-  seatsContainer.innerHTML = '';
-
-  const numPlayers = state.players.length;
-  // Radius for positioning
-  const rx = window.innerWidth > 900 ? 500 : window.innerWidth * 0.4;
-  const ry = window.innerWidth > 900 ? 250 : window.innerHeight * 0.25;
-
-  // We want the current user to be at the bottom (seat 0)
-  const myIndex = state.players.findIndex(p => p.id === socket.id);
-  const offsetIndex = myIndex >= 0 ? myIndex : 0;
-
-  state.players.forEach((p, i) => {
-    // Calculate angle: bottom is PI/2. Distribute evenly.
-    const visualPosition = (i - offsetIndex + numPlayers) % numPlayers;
-    const angle = (Math.PI / 2) + (visualPosition * (2 * Math.PI / numPlayers));
+    // Update HUD
+    document.getElementById('poker-room-name').textContent = state.name;
+    document.getElementById('poker-round-display').textContent = `Round ${state.round}`;
     
-    // Convert polar to cartesian
-    const x = Math.cos(angle) * rx;
-    const y = Math.sin(angle) * ry;
+    // Show/hide treasurer button
+    const isCreator = state.creatorId === socket.id;
+    const treasurerBtn = document.getElementById('btn-treasurer-open');
+    if (treasurerBtn) {
+      if (isCreator) treasurerBtn.classList.remove('hidden');
+      else treasurerBtn.classList.add('hidden');
+    }
 
-    const seat = document.createElement('div');
-    seat.className = `poker-seat ${p.isActive ? 'is-active' : ''} ${p.status === 'folded' ? 'is-folded' : ''}`;
-    seat.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
-
-    // Cards
-    let cardsHTML = '';
-    if (p.status !== 'folded') {
-      if (p.id === socket.id && state.myHand) {
-        cardsHTML = state.myHand.map(c => createCardHTML(c)).join('');
-      } else if (p.hand && p.hand.length > 0) {
-        cardsHTML = p.hand.map(c => createCardHTML(c)).join('');
+    // Center area
+    const potEl = document.getElementById('poker-pot');
+    if (potEl) potEl.textContent = (state.pot || 0).toLocaleString();
+    
+    const curBetEl = document.getElementById('poker-current-bet-display');
+    if (curBetEl) curBetEl.innerHTML = `Aposta: <strong>${state.currentBet || 0}</strong>`;
+    
+    // Side pots if any
+    const sidePotsDiv = document.getElementById('poker-side-pots');
+    if (sidePotsDiv) {
+      if (state.sidePots && state.sidePots.length > 1) {
+        sidePotsDiv.innerHTML = state.sidePots.map((p, i) => `Pot ${i+1}: ${p.amount}`).join(' | ');
       } else {
-        // Hidden cards
-        cardsHTML = `<div class="playing-card face-down"></div><div class="playing-card face-down"></div>`;
+        sidePotsDiv.innerHTML = '';
       }
     }
 
-    // Tokens
-    let tokens = '';
-    if (p.isDealer) tokens += `<div class="poker-token dealer">D</div>`;
-    else if (p.isSB) tokens += `<div class="poker-token sb">SB</div>`;
-    else if (p.isBB) tokens += `<div class="poker-token bb">BB</div>`;
-
-    seat.innerHTML = `
-      <div class="poker-seat-cards">${cardsHTML}</div>
-      <div class="poker-avatar">
-        ${getInitials(p.nick)}
-        ${tokens}
-      </div>
-      <div class="poker-seat-nick">${escapeHtml(p.nick)}</div>
-      <div class="poker-seat-chips">${p.chips.toLocaleString()}</div>
-      <div class="poker-seat-bet ${p.bet > 0 ? 'has-bet' : ''}">${p.bet}</div>
-    `;
-
-    seatsContainer.appendChild(seat);
-  });
-
-  // Action Panel
-  const me = state.players.find(p => p.id === socket.id);
-  const actionPanel = document.getElementById('poker-action-panel');
-  const waitingPanel = document.getElementById('poker-waiting-panel');
-
-  if (me && me.isActive && state.phase !== 'showdown') {
-    actionPanel.classList.add('active');
-    waitingPanel.classList.remove('active');
-    setupActionButtons(state, me);
-    startPokerTimer(state);
-  } else {
-    actionPanel.classList.remove('active');
-    if (state.phase !== 'showdown') waitingPanel.classList.add('active');
-    else waitingPanel.classList.remove('active');
-    stopPokerTimer();
-  }
-
-  // Showdown logic
-  if (state.phase === 'showdown') {
-    // Show winner toast
-    let winnersText = '';
-    if (state.payouts && Object.keys(state.payouts).length > 0) {
-      const wins = [];
-      for (const [pid, amount] of Object.entries(state.payouts)) {
-        const p = state.players.find(x => x.id === pid);
-        if (p) wins.push(`${p.nick} ganhou ${amount}`);
-      }
-      winnersText = wins.join(' | ');
+    // Community Cards
+    const commCardsDiv = document.getElementById('poker-community-cards');
+    if (commCardsDiv) {
+      commCardsDiv.innerHTML = (state.communityCards || []).map(c => createCardHTML(c)).join('');
     }
-    document.getElementById('poker-waiting-panel').textContent = winnersText || 'Showdown!';
-    document.getElementById('poker-waiting-panel').classList.add('active');
-  } else {
-    const activePlayer = state.players.find(p => p.isActive);
-    if (activePlayer) {
-      document.getElementById('poker-waiting-panel').textContent = `Vez de ${activePlayer.nick}...`;
+
+    // Seats (up to 8 players radially)
+    const seatsContainer = document.getElementById('poker-seats-container');
+    if (seatsContainer) {
+      seatsContainer.innerHTML = '';
+
+      const numPlayers = state.players.length;
+      // Radius for positioning
+      const rx = window.innerWidth > 900 ? 500 : window.innerWidth * 0.4;
+      const ry = window.innerWidth > 900 ? 250 : window.innerHeight * 0.25;
+
+      // We want the current user to be at the bottom (seat 0)
+      const myIndex = state.players.findIndex(p => p.id === socket.id);
+      const offsetIndex = myIndex >= 0 ? myIndex : 0;
+
+      state.players.forEach((p, i) => {
+        // Calculate angle: bottom is PI/2. Distribute evenly.
+        const visualPosition = (i - offsetIndex + numPlayers) % numPlayers;
+        const angle = (Math.PI / 2) + (visualPosition * (2 * Math.PI / numPlayers));
+        
+        // Convert polar to cartesian
+        const x = Math.cos(angle) * rx;
+        const y = Math.sin(angle) * ry;
+
+        const seat = document.createElement('div');
+        seat.className = `poker-seat ${p.isActive ? 'is-active' : ''} ${p.status === 'folded' ? 'is-folded' : ''}`;
+        seat.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+
+        // Cards
+        let cardsHTML = '';
+        if (p.status !== 'folded') {
+          if (p.id === socket.id && state.myHand) {
+            cardsHTML = state.myHand.map(c => createCardHTML(c)).join('');
+          } else if (p.hand && p.hand.length > 0) {
+            cardsHTML = p.hand.map(c => createCardHTML(c)).join('');
+          } else {
+            // Hidden cards
+            cardsHTML = `<div class="playing-card face-down"></div><div class="playing-card face-down"></div>`;
+          }
+        }
+
+        // Tokens
+        let tokens = '';
+        if (p.isDealer) tokens += `<div class="poker-token dealer">D</div>`;
+        else if (p.isSB) tokens += `<div class="poker-token sb">SB</div>`;
+        else if (p.isBB) tokens += `<div class="poker-token bb">BB</div>`;
+
+        seat.innerHTML = `
+          <div class="poker-seat-cards">${cardsHTML}</div>
+          <div class="poker-avatar">
+            ${getInitials(p.nick || '?')}
+            ${tokens}
+          </div>
+          <div class="poker-seat-nick">${escapeHtml(p.nick || 'User')}</div>
+          <div class="poker-seat-chips">${(p.chips || 0).toLocaleString()}</div>
+          <div class="poker-seat-bet ${p.bet > 0 ? 'has-bet' : ''}">${p.bet || 0}</div>
+        `;
+
+        seatsContainer.appendChild(seat);
+      });
+    }
+
+    // Action Panel
+    const me = state.players.find(p => p.id === socket.id);
+    const actionPanel = document.getElementById('poker-action-panel');
+    const waitingPanel = document.getElementById('poker-waiting-panel');
+
+    if (actionPanel && waitingPanel) {
+      if (me && me.isActive && state.phase !== 'showdown') {
+        actionPanel.classList.add('active');
+        waitingPanel.classList.remove('active');
+        setupActionButtons(state, me);
+        startPokerTimer(state);
+      } else {
+        actionPanel.classList.remove('active');
+        if (state.phase !== 'showdown') waitingPanel.classList.add('active');
+        else waitingPanel.classList.remove('active');
+        stopPokerTimer();
+      }
+    }
+
+    // Showdown logic
+    if (state.phase === 'showdown') {
+      // Show winner toast
+      let winnersText = '';
+      if (state.payouts && Object.keys(state.payouts).length > 0) {
+        const wins = [];
+        for (const [pid, amount] of Object.entries(state.payouts)) {
+          const p = state.players.find(x => x.id === pid);
+          if (p) wins.push(`${p.nick} ganhou ${amount}`);
+        }
+        winnersText = wins.join(' | ');
+      }
+      
+      const wp = document.getElementById('poker-waiting-panel');
+      if (wp) {
+        wp.textContent = winnersText || 'Showdown!';
+        wp.classList.add('active');
+      }
+
+      // Show evaluations
+      if (state.evaluations) {
+        state.evaluations.forEach(ev => {
+          if (ev.folded) return;
+          showToast(`${ev.nick}: ${ev.eval.name}`, 4000);
+        });
+      }
     } else {
-      document.getElementById('poker-waiting-panel').textContent = 'Aguardando...';
+      const activePlayer = state.players.find(p => p.isActive);
+      const wp = document.getElementById('poker-waiting-panel');
+      if (wp) {
+        if (activePlayer) {
+          wp.textContent = `Vez de ${activePlayer.nick}...`;
+        } else {
+          wp.textContent = 'Aguardando...';
+        }
+      }
     }
+  } catch (err) {
+    console.error('Render Poker Error:', err);
+    showToast(`Erro visual: ${err.message}`, 5000);
   }
 }
 
