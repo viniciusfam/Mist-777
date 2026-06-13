@@ -35,6 +35,12 @@ function renderPokerScreen(state) {
     document.getElementById('poker-room-name').textContent = state.name;
     document.getElementById('poker-round-display').textContent = `Round ${state.round}`;
     
+    const dbg = document.getElementById('poker-debug');
+    if (dbg) {
+      dbg.innerHTML = `SID: ${socket.id.slice(0,5)} | ActIdx: ${state.players.findIndex(p => p.isActive)}<br/>` +
+                      state.players.map(p => `${p.nick}[${p.id.slice(0,5)}]: act=${p.isActive} st=${p.status}`).join('<br/>');
+    }
+    
     // Show/hide treasurer button
     const isCreator = state.creatorId === socket.id;
     const treasurerBtn = document.getElementById('btn-treasurer-open');

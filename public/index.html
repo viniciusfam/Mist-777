@@ -290,7 +290,12 @@
   <!-- ═══════════════════════════════════════════════
        SCREEN POKER: TEXAS HOLD'EM TABLE
   ════════════════════════════════════════════════ -->
-  <div id="screen-poker" class="screen">
+  <div id="screen-poker" class="screen hidden">
+    <!-- ON-SCREEN DEBUG INFO -->
+    <div id="poker-debug" style="position: absolute; top: 0; left: 0; z-index: 9999; background: rgba(0,0,0,0.8); color: lime; padding: 5px; font-family: monospace; font-size: 10px; max-width: 300px; word-wrap: break-word; pointer-events: none;">
+      DEBUG: Waiting for state...
+    </div>
+
     <!-- Cheat Sheet Sidebar -->
     <div id="poker-cheat-sheet" class="poker-cheat-sheet">
       <h3>🏆 Ranking de Mãos</h3>

@@ -217,15 +217,47 @@ io.on('connection', (socket) => {
     }
     info.roomCode = result.code;
     socket.join(result.code);
-    console.log(`[Join] ${info.nick} joined ${result.code} (gameType=${result.gameType}, state=${result.state}, pokerRound=${!!result.pokerRound})`);
-    
-    // If a poker round is active, send poker_update (with private hand) to this specific player
     if (result.gameType === 'poker' && result.pokerRound) {
-      emitPokerUpdate(result);
-    } else {
-      const state = getRoomState(result);
-      io.to(result.code).emit('game_update', state);
+      const pr = result.pokerRound;
+      const p = pr.players.find(x => x.id === socket.id);
+      if (p) {
+        const { SMALL_BLIND, BIG_BLIND } = require('./pokerLogic');
+        const base = {
+          code: result.code,
+          name: result.name,
+          creatorId: result.creatorId,
+          state: result.state,
+          phase: pr.phase,
+          pot: pr.pot,
+          currentBet: pr.currentBet,
+          communityCards: pr.communityCards,
+          sidePots: pr.sidePots || [],
+          payouts: pr.payouts || {},
+          evaluations: pr.evaluations || [],
+          round: pr.roundCount,
+          smallBlind: SMALL_BLIND,
+          bigBlind: BIG_BLIND,
+          pokerTurnStart: result.pokerTurnStart,
+          players: pr.players.map((xp, i) => ({
+            id: xp.id,
+            nick: xp.nick,
+            chips: xp.chips,
+            bet: xp.bet,
+            totalBet: xp.totalBet,
+            status: xp.status,
+            lastAction: xp.lastAction,
+            isDealer: i === (result.dealerIndex % pr.players.length),
+            isSB: i === pr.sbIndex,
+            isBB: i === pr.bbIndex,
+            isActive: i === pr.activePlayerIndex,
+            hand: pr.phase === 'showdown' ? xp.hand : []
+          }))
+        };
+        socket.emit('poker_update', { ...base, myHand: p.hand });
+      }
     }
+    
+    io.to(result.code).emit('game_update', getRoomState(result));
     io.emit('lobby_update', getPublicRooms());
     callback?.({ ok: true, room: getRoomState(result) });
   });
