@@ -21,9 +21,6 @@ socket.on('poker_update', (state) => {
   
   pokerState = state;
   
-  detectPokerSounds(prevPokerState, state);
-  prevPokerState = state;
-  
   // Transition to poker screen if round started
   if (state.state === 'playing' || state.state === 'finished') {
     if (typeof showScreen === 'function') {
@@ -33,6 +30,10 @@ socket.on('poker_update', (state) => {
   }
 
   renderPokerScreen(state);
+  
+  // Detect sounds AND visuals AFTER DOM is rendered
+  detectPokerSounds(prevPokerState, state);
+  prevPokerState = state;
 });
 
 socket.on('poker_hand', (hand) => {
