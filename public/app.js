@@ -170,12 +170,14 @@ document.getElementById('btn-enter').addEventListener('click', () => {
     return;
   }
 
-  socket.emit('set_nick', nick, (res) => {
+  const token = localStorage.getItem('sessionToken');
+  socket.emit('set_nick', { nick, token }, (res) => {
     if (res?.error) {
       showError('nick-error', res.error);
       return;
     }
     myNick = res.nick;
+    if (res.token) localStorage.setItem('sessionToken', res.token);
     document.getElementById('lobby-nick-display').textContent = myNick;
     socket.emit('get_rooms', (rooms) => renderRoomsList(rooms));
     showScreen('lobby');

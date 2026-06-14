@@ -236,12 +236,13 @@ io.on('connection', (socket) => {
   // Send the current server version immediately
   socket.emit('server_version', SERVER_BUILD_ID);
 
-  socket.on('set_nick', (nick, callback) => {
+  socket.on('set_nick', ({ nick, token }, callback) => {
     if (!nick || typeof nick !== 'string' || nick.trim().length < 2)
       return callback?.({ error: 'Nick deve ter pelo menos 2 caracteres.' });
-    const cleanNick = nick.trim().substring(0, 20);
-    socketInfo.set(socket.id, { nick: cleanNick, roomCode: null });
-    callback?.({ ok: true, nick: cleanNick });
+    const cleanNick = nick.trim().substring(0, 20).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const sessionToken = token || require('crypto').randomUUID();
+    socketInfo.set(socket.id, { nick: cleanNick, roomCode: null, sessionToken });
+    callback?.({ ok: true, nick: cleanNick, token: sessionToken });
   });
 
   socket.on('debug_log', (msg) => {
@@ -265,7 +266,7 @@ io.on('connection', (socket) => {
   socket.on('join_room', (code, callback) => {
     const info = socketInfo.get(socket.id);
     if (!info?.nick) return callback?.({ error: 'Defina seu nick primeiro.' });
-    const result = joinRoom(code, { id: socket.id, nick: info.nick });
+    const result = joinRoom(code, { id: socket.id, nick: info.nick, sessionToken: info.sessionToken });
     if (typeof result === 'string') {
       const errs = { ROOM_NOT_FOUND: 'Sala não encontrada.', GAME_IN_PROGRESS: 'Partida já em andamento.', ROOM_FULL: 'Sala cheia.' };
       return callback?.({ error: errs[result] || result });

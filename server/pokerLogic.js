@@ -272,6 +272,10 @@ function processAction(round, playerId, action, raiseAmount = 0) {
       break;
     }
     case 'raise': {
+      if (typeof raiseAmount !== 'number' || !Number.isFinite(raiseAmount) || raiseAmount < 0) {
+        throw new Error('Invalid raise amount');
+      }
+      raiseAmount = Math.floor(raiseAmount);
       const minRaise = round.currentBet + round.bigBlind;
       const amount = Math.max(raiseAmount, minRaise);
       const totalNeeded = amount - player.bet;

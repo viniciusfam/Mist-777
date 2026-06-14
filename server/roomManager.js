@@ -41,7 +41,7 @@ function createRoom(name, ryoAmount, creator, gameType = 'blackjack') {
   const code = generateRoomCode();
   const room = {
     code,
-    name: name.substring(0, 20),
+    name: name.substring(0, 20).replace(/</g, '&lt;').replace(/>/g, '&gt;'),
     gameType,              // 'blackjack' | 'poker'
     ryoAmount: parseInt(ryoAmount) || 1,
     accumulatedPot: 0,
@@ -111,6 +111,9 @@ function joinRoom(code, player) {
   // Check if player is already in room (reconnection)
   const existing = room.players.find(p => p.nick === player.nick);
   if (existing) {
+    if (existing.sessionToken && existing.sessionToken !== player.sessionToken) {
+      return 'SESSION_MISMATCH'; // Prevent stealing seats
+    }
     existing.id = player.id;
     existing.disconnected = false;
 
@@ -134,6 +137,7 @@ function joinRoom(code, player) {
     sessionBalance: 0,
     chips: room.gameType === 'poker' ? 1000 : 0,
     disconnected: false,
+    sessionToken: player.sessionToken,
   });
 
   return room;
@@ -472,7 +476,7 @@ function getRoomState(room) {
       chips: p.chips || 0,
       disconnected: p.disconnected || false,
     })),
-    dealerHand: room.dealerHand,
+    dealerHand: room.dealerHand.map(c => c.hidden ? { hidden: true } : c),
     dealerValue: room.state === 'playing'
       ? calculateHandValue(room.dealerHand.filter(c => !c.hidden))
       : calculateHandValue(room.dealerHand.map(c => ({ ...c, hidden: false }))),
