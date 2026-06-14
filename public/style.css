@@ -2213,18 +2213,28 @@ input::placeholder { color: var(--text-muted); }
   animation: glow-allin-anim 1.5s ease-out;
 }
 
+
+
+
 @keyframes glow-raise-anim {
   0% {
     box-shadow: 0 0 5px rgba(0, 191, 255, 0), inset 0 0 5px rgba(0, 191, 255, 0);
     border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
   }
   20% {
-    box-shadow: 0 0 20px rgba(0, 191, 255, 1), inset 0 0 10px rgba(0, 191, 255, 0.8);
+    box-shadow: 0 0 30px rgba(0, 191, 255, 1), inset 0 0 20px rgba(0, 191, 255, 1);
     border-color: rgba(0, 191, 255, 1);
+    background: rgba(0, 191, 255, 0.6);
+    color: white;
+    text-shadow: 0 0 5px white;
+    transform: scale(1.15);
   }
   100% {
     box-shadow: 0 0 5px rgba(0, 191, 255, 0), inset 0 0 5px rgba(0, 191, 255, 0);
     border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1);
   }
 }
 
@@ -2232,14 +2242,21 @@ input::placeholder { color: var(--text-muted); }
   0% {
     box-shadow: 0 0 5px rgba(255, 50, 50, 0), inset 0 0 5px rgba(255, 50, 50, 0);
     border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
   }
   20% {
-    box-shadow: 0 0 20px rgba(255, 50, 50, 1), inset 0 0 10px rgba(255, 50, 50, 0.8);
+    box-shadow: 0 0 30px rgba(255, 50, 50, 1), inset 0 0 20px rgba(255, 50, 50, 1);
     border-color: rgba(255, 50, 50, 1);
+    background: rgba(255, 50, 50, 0.6);
+    color: white;
+    text-shadow: 0 0 5px white;
+    transform: scale(1.15);
   }
   100% {
     box-shadow: 0 0 5px rgba(255, 50, 50, 0), inset 0 0 5px rgba(255, 50, 50, 0);
     border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1);
   }
 }
 
