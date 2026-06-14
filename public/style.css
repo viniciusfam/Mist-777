@@ -1009,12 +1009,12 @@ input::placeholder { color: var(--text-muted); }
 }
 
 .card-suit {
-  font-size: 0.8rem;
+  font-size: 1.1rem;
   line-height: 1;
 }
 
 .card-center-suit {
-  font-size: 1.5rem;
+  font-size: 2.2rem;
   margin: 2px 0;
 }
 
@@ -1764,6 +1764,44 @@ input::placeholder { color: var(--text-muted); }
 .poker-seat.is-active .poker-avatar {
   border-color: var(--gold);
   box-shadow: 0 0 20px rgba(212,168,67,0.4);
+}
+
+/* ── Active Seat Timer Ring ── */
+.seat-timer-ring {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 68px;
+  height: 68px;
+  transform: rotate(-90deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.seat-timer-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.1);
+  stroke-width: 4;
+}
+
+.seat-timer-fill {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 4;
+  stroke-dasharray: 201; /* 2 * PI * 32 ~= 201.06 */
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+}
+
+@keyframes seatTimerDrain {
+  0%   { stroke-dashoffset: 0; stroke: var(--gold); }
+  60%  { stroke: var(--gold); }
+  80%  { stroke: var(--red); }
+  100% { stroke-dashoffset: 201; stroke: var(--red); }
+}
+
+.seat-timer-fill.animating {
+  animation: seatTimerDrain 30s linear forwards;
 }
 
 .poker-seat.is-folded {

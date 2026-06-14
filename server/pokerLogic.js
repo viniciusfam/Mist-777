@@ -221,6 +221,8 @@ function createPokerRound(players, dealerIndex, smallBlind = 10, bigBlind = 20) 
     players: playerStates,
     pot: 0,                     // chips already moved to pot (from previous streets)
     currentBet: bigBlind,
+    smallBlind,
+    bigBlind,
     dealerIndex,
     sbIndex,
     bbIndex,
@@ -266,7 +268,7 @@ function processAction(round, playerId, action, raiseAmount = 0) {
       break;
     }
     case 'raise': {
-      const minRaise = round.currentBet + BIG_BLIND;
+      const minRaise = round.currentBet + round.bigBlind;
       const amount = Math.max(raiseAmount, minRaise);
       const totalNeeded = amount - player.bet;
       const actual = Math.min(totalNeeded, player.chips);

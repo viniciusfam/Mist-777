@@ -216,9 +216,25 @@ function renderPokerScreen(state) {
         else if (p.isSB) tokens += `<div class="poker-token sb">SB</div>`;
         else if (p.isBB) tokens += `<div class="poker-token bb">BB</div>`;
 
+        // Active Player Timer Ring
+        let activeRing = '';
+        if (p.isActive && state.pokerTurnStart) {
+           const serverOffset = Date.now() - (state.serverTime || Date.now());
+           let elapsedSec = ((Date.now() - serverOffset) - state.pokerTurnStart) / 1000;
+           if (elapsedSec < 0) elapsedSec = 0;
+           const delay = -elapsedSec;
+           activeRing = `
+            <svg class="seat-timer-ring" viewBox="0 0 68 68">
+              <circle class="seat-timer-bg" cx="34" cy="34" r="32"/>
+              <circle class="seat-timer-fill animating" cx="34" cy="34" r="32" style="animation-delay: ${delay}s"/>
+            </svg>
+           `;
+        }
+
         seat.innerHTML = `
           <div class="poker-seat-cards">${cardsHTML}</div>
-          <div class="poker-avatar">
+          <div class="poker-avatar ${p.isActive ? 'is-active-avatar' : ''}">
+            ${activeRing}
             ${getInitials(p.nick || '?')}
             ${tokens}
           </div>
