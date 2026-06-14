@@ -224,23 +224,27 @@ function renderPokerScreen(state) {
            if (elapsedSec < 0) elapsedSec = 0;
            const delay = -elapsedSec;
            activeRing = `
-            <svg class="seat-timer-ring" viewBox="0 0 68 68">
-              <circle class="seat-timer-bg" cx="34" cy="34" r="32"/>
-              <circle class="seat-timer-fill animating" cx="34" cy="34" r="32" style="animation-delay: ${delay}s"/>
+            <svg class="seat-timer-ring" viewBox="0 0 80 80">
+              <circle class="seat-timer-bg" cx="40" cy="40" r="38"/>
+              <circle class="seat-timer-fill animating" cx="40" cy="40" r="38" style="animation-delay: ${delay}s"/>
             </svg>
            `;
         }
 
         seat.innerHTML = `
-          <div class="poker-seat-cards">${cardsHTML}</div>
-          <div class="poker-avatar ${p.isActive ? 'is-active-avatar' : ''}">
-            ${activeRing}
-            ${getInitials(p.nick || '?')}
+          <div class="poker-avatar-container">
+            <div class="poker-avatar ${p.isActive ? 'is-active-avatar' : ''}">
+              ${activeRing}
+              ${getInitials(p.nick || '?')}
+            </div>
+            <div class="poker-seat-cards">${cardsHTML}</div>
             ${tokens}
+            ${evaluationName}
           </div>
-          ${evaluationName}
-          <div class="poker-seat-nick">${escapeHtml(p.nick || 'User')}</div>
-          <div class="poker-seat-chips">${(p.chips || 0).toLocaleString()}</div>
+          <div class="poker-seat-info-panel">
+            <div class="poker-seat-nick">${escapeHtml(p.nick || 'User')}</div>
+            <div class="poker-seat-chips">${(p.chips || 0).toLocaleString()}</div>
+          </div>
           <div class="poker-seat-bet ${p.bet > 0 ? 'has-bet' : ''}">${p.bet || 0}</div>
         `;
 
