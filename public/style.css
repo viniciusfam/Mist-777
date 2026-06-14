@@ -1805,9 +1805,9 @@ input::placeholder { color: var(--text-muted); }
 
 .poker-seat-cards {
   position: absolute;
-  top: 15px;
+  bottom: 80%; /* sit above the avatar */
   display: flex;
-  gap: -20px;
+  justify-content: center;
   z-index: 1;
 }
 
@@ -2068,4 +2068,35 @@ input::placeholder { color: var(--text-muted); }
   text-transform: uppercase;
   letter-spacing: 4px;
   text-shadow: 0 0 15px var(--gold);
+}
+
+/* ── Showdown Highlights ────────────────────────────────────────────── */
+.poker-seat-eval {
+  background: var(--gold);
+  color: #000;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+  margin-bottom: -6px;
+  z-index: 3;
+  box-shadow: 0 2px 8px rgba(212,168,67,0.5);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.playing-card.dim-card {
+  opacity: 0.35 !important;
+  filter: grayscale(0.5);
+  transform: scale(0.95);
+  transition: all 0.5s ease;
+}
+
+.playing-card.winning-card {
+  box-shadow: 0 0 20px rgba(212, 168, 67, 0.8), 0 0 40px rgba(212, 168, 67, 0.4) !important;
+  border: 2px solid var(--gold) !important;
+  transform: scale(1.1) translateY(-10px) !important;
+  z-index: 10 !important;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }

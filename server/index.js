@@ -107,15 +107,13 @@ function emitPokerUpdate(room) {
       id: p.id,
       nick: p.nick,
       chips: p.chips,
-      bet: p.bet,
-      totalBet: p.totalBet,
-      status: p.status,
-      lastAction: p.lastAction,
-      isDealer: i === (room.dealerIndex % pr.players.length),
-      isSB: i === pr.sbIndex,
-      isBB: i === pr.bbIndex,
-      isActive: i === pr.activePlayerIndex,
-      hand: pr.phase === 'showdown' ? p.hand : [],
+    players: pr.players.map(p => ({
+      ...p,
+      isDealer: pr.players.findIndex(player => player.id === p.id) === (room.dealerIndex % pr.players.length),
+      isSB: pr.players.findIndex(player => player.id === p.id) === pr.sbIndex,
+      isBB: pr.players.findIndex(player => player.id === p.id) === pr.bbIndex,
+      isActive: pr.activePlayerIndex !== null && pr.players[pr.activePlayerIndex]?.id === p.id,
+      hand: (pr.phase === 'showdown' && p.status !== 'folded' && pr.players.filter(x => x.status !== 'folded').length > 1) ? p.hand : [],
     })),
   };
 

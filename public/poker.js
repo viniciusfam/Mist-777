@@ -114,15 +114,47 @@ function renderPokerScreen(state) {
         seat.className = `poker-seat ${p.isActive ? 'is-active' : ''} ${p.status === 'folded' ? 'is-folded' : ''}`;
         seat.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 
+        // Evaluate winner info
+        let evaluationName = '';
+        let isWinner = false;
+        let winningCards = null;
+
+        if (state.phase === 'showdown' && state.evaluations) {
+          const ev = state.evaluations.find(e => e.id === p.id);
+          if (ev && !ev.folded) {
+            // Only show name if we are showing cards
+            const notFoldedCount = state.players.filter(x => x.status !== 'folded').length;
+            if (notFoldedCount > 1) {
+              evaluationName = `<div class="poker-seat-eval">${ev.eval.name}</div>`;
+            }
+            if (state.payouts && state.payouts[p.id] > 0) {
+              isWinner = true;
+              winningCards = ev.eval.cards;
+            }
+          }
+        }
+
         // Cards
         let cardsHTML = '';
         if (p.status !== 'folded') {
-          if (p.id === socket.id && state.myHand) {
-            cardsHTML = state.myHand.map(c => createCardHTML(c)).join('');
-          } else if (p.hand && p.hand.length > 0) {
-            cardsHTML = p.hand.map(c => createCardHTML(c)).join('');
-          } else {
-            // Hidden cards
+          let cardsToRender = [];
+          if (p.id === socket.id && state.myHand) cardsToRender = state.myHand;
+          else if (p.hand && p.hand.length > 0) cardsToRender = p.hand;
+
+          if (cardsToRender.length > 0) {
+            cardsHTML = cardsToRender.map(c => {
+              let hState = 'normal';
+              if (isWinner && winningCards) {
+                const isWinningCard = winningCards.some(wc => wc.rank === c.rank && wc.suit === c.suit);
+                hState = isWinningCard ? 'winner' : 'dim';
+              } else if (state.phase === 'showdown' && state.evaluations) {
+                // If it's showdown and they didn't win, dim their cards entirely to focus on winner
+                const notFoldedCount = state.players.filter(x => x.status !== 'folded').length;
+                if (notFoldedCount > 1 && !isWinner) hState = 'dim';
+              }
+              return createCardHTML(c, hState);
+            }).join('');
+          } else if (state.phase !== 'showdown') {
             cardsHTML = `<div class="playing-card face-down"></div><div class="playing-card face-down"></div>`;
           }
         }
@@ -139,6 +171,7 @@ function renderPokerScreen(state) {
             ${getInitials(p.nick || '?')}
             ${tokens}
           </div>
+          ${evaluationName}
           <div class="poker-seat-nick">${escapeHtml(p.nick || 'User')}</div>
           <div class="poker-seat-chips">${(p.chips || 0).toLocaleString()}</div>
           <div class="poker-seat-bet ${p.bet > 0 ? 'has-bet' : ''}">${p.bet || 0}</div>
@@ -399,11 +432,16 @@ document.getElementById('btn-scoreboard-poker').addEventListener('click', () => 
 });
 
 // Reuse app.js helper
-function createCardHTML(card) {
+function createCardHTML(card, highlightState = 'normal') {
   if (card.hidden) return `<div class="playing-card face-down"></div>`;
   const isRed = card.suit === '♥' || card.suit === '♦';
+  
+  let extraClass = '';
+  if (highlightState === 'winner') extraClass = 'winning-card';
+  else if (highlightState === 'dim') extraClass = 'dim-card';
+
   return `
-    <div class="playing-card face-up ${isRed ? 'red' : ''}">
+    <div class="playing-card face-up ${isRed ? 'red' : ''} ${extraClass}">
       <div class="card-rank">${card.rank}</div>
       <div class="card-suit">${card.suit}</div>
       <div class="card-center-suit">${card.suit}</div>
