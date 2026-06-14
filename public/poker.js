@@ -245,7 +245,7 @@ function renderPokerScreen(state) {
             <div class="poker-seat-nick">${escapeHtml(p.nick || 'User')}</div>
             <div class="poker-seat-chips">${(p.chips || 0).toLocaleString()}</div>
           </div>
-          <div class="poker-seat-bet ${p.bet > 0 ? 'has-bet' : ''}">${p.bet || 0}</div>
+          <div id="poker-bet-${p.id}" class="poker-seat-bet ${p.bet > 0 ? 'has-bet' : ''}">${p.bet || 0}</div>
         `;
 
         seatsContainer.appendChild(seat);
@@ -557,9 +557,26 @@ function detectPokerSounds(prev, curr) {
     const pPrev = prev.players.find(x => x.id === p.id);
     if (pPrev && p.lastAction !== pPrev.lastAction && p.lastAction) {
       const action = p.lastAction.split(':')[0];
+      const betEl = document.getElementById(`poker-bet-${p.id}`);
+      
       if (action === 'fold') Sounds.fold();
-      else if (action === 'call' || action === 'check' || action === 'raise') Sounds.call();
-      else if (action === 'allin') Sounds.allIn();
+      else if (action === 'call' || action === 'check') Sounds.call();
+      else if (action === 'raise') {
+        Sounds.call();
+        if (betEl) {
+          betEl.classList.remove('glow-raise', 'glow-allin');
+          void betEl.offsetWidth; // trigger reflow
+          betEl.classList.add('glow-raise');
+        }
+      }
+      else if (action === 'allin') {
+        Sounds.allIn();
+        if (betEl) {
+          betEl.classList.remove('glow-raise', 'glow-allin');
+          void betEl.offsetWidth; // trigger reflow
+          betEl.classList.add('glow-allin');
+        }
+      }
     }
   });
 }
