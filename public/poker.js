@@ -292,13 +292,7 @@ function renderPokerScreen(state) {
         wp.classList.add('active');
       }
 
-      // Show evaluations
-      if (state.evaluations) {
-        state.evaluations.forEach(ev => {
-          if (ev.folded) return;
-          showToast(`${ev.nick}: ${ev.eval.name}`, 4000);
-        });
-      }
+      // Removed redundant toast loop
     } else {
       const activePlayer = state.players.find(p => p.isActive);
       const wp = document.getElementById('poker-waiting-panel');

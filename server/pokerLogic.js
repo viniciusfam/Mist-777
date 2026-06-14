@@ -67,40 +67,44 @@ function evaluateFive(cards) {
   
   const freq = groups.map(g => g.c);
 
+  const rankName = (v) => {
+    return {14:'A',13:'K',12:'Q',11:'J',10:'10',9:'9',8:'8',7:'7',6:'6',5:'5',4:'4',3:'3',2:'2'}[v] || v;
+  };
+
   // Royal/Straight Flush
   if (isFlush && isStraight) {
-    return { rank: straightHigh === 14 ? 9 : 8, name: straightHigh === 14 ? 'Royal Flush' : 'Straight Flush', tiebreakers: [straightHigh] };
+    return { rank: straightHigh === 14 ? 9 : 8, name: straightHigh === 14 ? 'Royal Flush' : `Straight Flush (${rankName(straightHigh)})`, tiebreakers: [straightHigh] };
   }
   // Four of a Kind
   if (freq[0] === 4) {
-    return { rank: 7, name: 'Quadra', tiebreakers: [groups[0].v, groups[1].v] };
+    return { rank: 7, name: `Quadra de ${rankName(groups[0].v)}`, tiebreakers: [groups[0].v, groups[1].v] };
   }
   // Full House
   if (freq[0] === 3 && freq[1] === 2) {
-    return { rank: 6, name: 'Full House', tiebreakers: [groups[0].v, groups[1].v] };
+    return { rank: 6, name: `Full House (${rankName(groups[0].v)} com ${rankName(groups[1].v)})`, tiebreakers: [groups[0].v, groups[1].v] };
   }
   // Flush
   if (isFlush) {
-    return { rank: 5, name: 'Flush', tiebreakers: vals };
+    return { rank: 5, name: `Flush (Alta ${rankName(vals[0])})`, tiebreakers: vals };
   }
   // Straight
   if (isStraight) {
-    return { rank: 4, name: 'Sequência', tiebreakers: [straightHigh] };
+    return { rank: 4, name: `Sequência (Alta ${rankName(straightHigh)})`, tiebreakers: [straightHigh] };
   }
   // Three of a Kind
   if (freq[0] === 3) {
-    return { rank: 3, name: 'Trinca', tiebreakers: [groups[0].v, ...groups.slice(1).map(g=>g.v)] };
+    return { rank: 3, name: `Trinca de ${rankName(groups[0].v)}`, tiebreakers: [groups[0].v, ...groups.slice(1).map(g=>g.v)] };
   }
   // Two Pair
   if (freq[0] === 2 && freq[1] === 2) {
-    return { rank: 2, name: 'Dois Pares', tiebreakers: [groups[0].v, groups[1].v, groups[2].v] };
+    return { rank: 2, name: `Dois Pares (${rankName(groups[0].v)} e ${rankName(groups[1].v)})`, tiebreakers: [groups[0].v, groups[1].v, groups[2].v] };
   }
   // One Pair
   if (freq[0] === 2) {
-    return { rank: 1, name: 'Par', tiebreakers: [groups[0].v, ...groups.slice(1).map(g=>g.v)] };
+    return { rank: 1, name: `Par de ${rankName(groups[0].v)}`, tiebreakers: [groups[0].v, ...groups.slice(1).map(g=>g.v)] };
   }
   // High Card
-  return { rank: 0, name: 'Carta Alta', tiebreakers: vals };
+  return { rank: 0, name: `Carta Alta (${rankName(vals[0])})`, tiebreakers: vals };
 }
 
 function bestHandFrom7(cards) {
