@@ -564,19 +564,21 @@ function detectPokerSounds(prev, curr) {
       else if (action === 'raise') {
         Sounds.call();
         if (betEl) {
-          betEl.classList.remove('glow-raise', 'glow-allin');
-          setTimeout(() => {
-            betEl.classList.add('glow-raise');
-          }, 50);
+          betEl.animate([
+            { transform: 'scale(1)', background: 'rgba(255,255,255,0.1)', boxShadow: '0 0 0px rgba(0,191,255,0)', borderColor: 'rgba(255,255,255,0.2)' },
+            { transform: 'scale(1.2)', background: 'rgba(0,191,255,0.6)', boxShadow: '0 0 30px rgba(0,191,255,1)', borderColor: 'rgba(0,191,255,1)', color: '#fff' },
+            { transform: 'scale(1)', background: 'rgba(255,255,255,0.1)', boxShadow: '0 0 0px rgba(0,191,255,0)', borderColor: 'rgba(255,255,255,0.2)' }
+          ], { duration: 1500, easing: 'ease-out' });
         }
       }
       else if (action === 'allin') {
         Sounds.allIn();
         if (betEl) {
-          betEl.classList.remove('glow-raise', 'glow-allin');
-          setTimeout(() => {
-            betEl.classList.add('glow-allin');
-          }, 50);
+          betEl.animate([
+            { transform: 'scale(1)', background: 'rgba(255,255,255,0.1)', boxShadow: '0 0 0px rgba(255,50,50,0)', borderColor: 'rgba(255,255,255,0.2)' },
+            { transform: 'scale(1.3)', background: 'rgba(255,50,50,0.6)', boxShadow: '0 0 30px rgba(255,50,50,1)', borderColor: 'rgba(255,50,50,1)', color: '#fff' },
+            { transform: 'scale(1)', background: 'rgba(255,255,255,0.1)', boxShadow: '0 0 0px rgba(255,50,50,0)', borderColor: 'rgba(255,255,255,0.2)' }
+          ], { duration: 1500, easing: 'ease-out' });
         }
       }
     }
