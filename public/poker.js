@@ -39,8 +39,12 @@ socket.on('poker_update', (state) => {
 socket.on('poker_hand', (hand) => {
   console.log('[Poker] Received private hand:', hand);
   if (pokerState) {
-    pokerState.myHand = hand;
-    renderPokerScreen(pokerState);
+    const currentHandStr = JSON.stringify(pokerState.myHand || []);
+    const newHandStr = JSON.stringify(hand || []);
+    if (currentHandStr !== newHandStr) {
+      pokerState.myHand = hand;
+      renderPokerScreen(pokerState);
+    }
   }
 });
 
