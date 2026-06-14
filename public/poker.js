@@ -7,6 +7,7 @@
 let pokerState = null;
 let prevPokerState = null;
 let pokerTimerInterval = null;
+let tournamentTimerInterval = null;
 let lastRoundSeen = 0;
 
 // Listen for direct poker updates
@@ -58,10 +59,34 @@ function renderPokerScreen(state) {
     
     // Show/hide treasurer button
     const isCreator = state.creatorId === socket.id;
-    const treasurerBtn = document.getElementById('btn-treasurer-open');
-    if (treasurerBtn) {
-      if (isCreator) treasurerBtn.classList.remove('hidden');
-      else treasurerBtn.classList.add('hidden');
+    const btnTreasurer = document.getElementById('btn-treasurer-open');
+    if (btnTreasurer) {
+      btnTreasurer.classList.toggle('hidden', !isCreator);
+    }
+
+    // Tournament HUD Logic
+    const tourneyHud = document.getElementById('poker-tournament-hud');
+    if (state.pokerStartTime && tourneyHud) {
+      tourneyHud.style.display = 'flex';
+      const blindsEl = document.getElementById('tourney-blinds');
+      const timerEl = document.getElementById('tourney-timer');
+      
+      if (blindsEl) blindsEl.textContent = `Blinds: ${state.smallBlind} / ${state.bigBlind}`;
+      
+      if (tournamentTimerInterval) clearInterval(tournamentTimerInterval);
+      
+      const updateTourneyTimer = () => {
+        const elapsed = Math.floor((Date.now() - state.pokerStartTime) / 1000);
+        const m = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const s = (elapsed % 60).toString().padStart(2, '0');
+        if (timerEl) timerEl.textContent = `${m}:${s}`;
+      };
+      
+      updateTourneyTimer();
+      tournamentTimerInterval = setInterval(updateTourneyTimer, 1000);
+    } else if (tourneyHud) {
+      tourneyHud.style.display = 'none';
+      if (tournamentTimerInterval) clearInterval(tournamentTimerInterval);
     }
 
     // Center area

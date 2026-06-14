@@ -7,9 +7,6 @@
  */
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const SMALL_BLIND = 25;
-const BIG_BLIND   = 50;
-
 const RANKS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
 const SUITS = ['♠','♥','♦','♣'];
 const RANK_VAL = Object.fromEntries(RANKS.map((r,i) => [r, i + 2]));
@@ -167,7 +164,7 @@ function calculateSidePots(contributions) {
 }
 
 // ─── Game State Factory ───────────────────────────────────────────────────────
-function createPokerRound(players, dealerIndex) {
+function createPokerRound(players, dealerIndex, smallBlind = 10, bigBlind = 20) {
   const deck = shuffleDeck(createDeck());
   // Only deal to players who have enough chips and are connected
   const activePlayers = players.filter(p => p.chips > 0 && !p.disconnected);
@@ -211,8 +208,8 @@ function createPokerRound(players, dealerIndex) {
     if (p.chips === 0) p.status = 'allin';
   }
 
-  postBlind(sbIndex, SMALL_BLIND);
-  postBlind(bbIndex, BIG_BLIND);
+  postBlind(sbIndex, smallBlind);
+  postBlind(bbIndex, bigBlind);
 
   // First to act preflop = player after BB
   const firstToAct = (bbIndex + 1) % numPlayers;
@@ -223,7 +220,7 @@ function createPokerRound(players, dealerIndex) {
     communityCards: [],
     players: playerStates,
     pot: 0,                     // chips already moved to pot (from previous streets)
-    currentBet: BIG_BLIND,
+    currentBet: bigBlind,
     dealerIndex,
     sbIndex,
     bbIndex,
@@ -480,6 +477,4 @@ function endRound(round) {
 module.exports = {
   createPokerRound,
   processAction,
-  SMALL_BLIND,
-  BIG_BLIND,
 };

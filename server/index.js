@@ -31,7 +31,29 @@ const {
   addChips,
 } = require('./roomManager');
 
-const { createPokerRound, processAction, SMALL_BLIND, BIG_BLIND } = require('./pokerLogic');
+const { createPokerRound, processAction } = require('./pokerLogic');
+
+const POKER_BLIND_LEVELS = [
+  { min: 0,  sb: 10,  bb: 20 },
+  { min: 5,  sb: 15,  bb: 30 },
+  { min: 10, sb: 25,  bb: 50 },
+  { min: 15, sb: 50,  bb: 100 },
+  { min: 20, sb: 100, bb: 200 },
+  { min: 25, sb: 150, bb: 300 },
+  { min: 30, sb: 200, bb: 400 },
+  { min: 35, sb: 400, bb: 800 },
+];
+
+function getCurrentBlinds(startTime) {
+  if (!startTime) return POKER_BLIND_LEVELS[0];
+  const elapsedMinutes = (Date.now() - startTime) / 60000;
+  let currentLevel = POKER_BLIND_LEVELS[0];
+  for (const level of POKER_BLIND_LEVELS) {
+    if (elapsedMinutes >= level.min) currentLevel = level;
+    else break;
+  }
+  return currentLevel;
+}
 
 const app = express();
 
@@ -86,9 +108,12 @@ function emitPokerUpdate(room) {
     code: room.code,
     name: room.name,
     gameType: 'poker',
-    creatorId: room.creatorId,
-    state: room.state,
     round: room.round,
+    state: room.state,
+    creatorId: room.creatorId,
+    pokerStartTime: room.pokerStartTime || null,
+    smallBlind: room.smallBlind || 10,
+    bigBlind: room.bigBlind || 20,
     dealerIndex: room.dealerIndex,
     phase: pr.phase,
     pot: pr.pot,
@@ -97,8 +122,6 @@ function emitPokerUpdate(room) {
     sidePots: pr.sidePots || [],
     payouts: pr.payouts || {},
     evaluations: pr.evaluations || [],
-    smallBlind: SMALL_BLIND,
-    bigBlind: BIG_BLIND,
     sbIndex: pr.sbIndex,
     bbIndex: pr.bbIndex,
     activePlayerIndex: pr.activePlayerIndex,
@@ -159,9 +182,16 @@ function startPokerRound(room) {
   const active = room.players.filter(p => !p.disconnected && p.chips > 0);
   if (active.length < 2) { room.state = 'waiting'; emitGameUpdate(room); return; }
 
+  if (!room.pokerStartTime) room.pokerStartTime = Date.now();
+  const blinds = getCurrentBlinds(room.pokerStartTime);
+  room.smallBlind = blinds.sb;
+  room.bigBlind = blinds.bb;
+
   room.pokerRound = createPokerRound(
     active.map(p => ({ id: p.id, nick: p.nick, chips: p.chips, disconnected: false })),
-    room.dealerIndex % active.length
+    room.dealerIndex % active.length,
+    blinds.sb,
+    blinds.bb
   );
   schedulePokerTimer(room);
   emitPokerUpdate(room);
