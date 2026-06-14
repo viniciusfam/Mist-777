@@ -126,10 +126,6 @@ function emitPokerUpdate(room) {
     bbIndex: pr.bbIndex,
     activePlayerIndex: pr.activePlayerIndex,
     pokerTurnStart: room.pokerTurnStart || null,
-    players: pr.players.map((p, i) => ({
-      id: p.id,
-      nick: p.nick,
-      chips: p.chips,
     players: pr.players.map(p => ({
       ...p,
       isDealer: pr.players.findIndex(player => player.id === p.id) === (room.dealerIndex % pr.players.length),
