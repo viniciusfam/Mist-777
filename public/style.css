@@ -1733,8 +1733,8 @@ input::placeholder { color: var(--text-muted); }
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 120px;
-  height: 140px;
+  width: 140px;
+  height: 180px;
   transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
@@ -1753,8 +1753,8 @@ input::placeholder { color: var(--text-muted); }
 }
 
 .poker-avatar {
-  width: 70px;
-  height: 70px;
+  width: 90px;
+  height: 90px;
   background: var(--bg-card);
   border: 2px solid var(--border);
   border-radius: 50%;
@@ -1780,8 +1780,8 @@ input::placeholder { color: var(--text-muted); }
   position: absolute;
   top: -5px;
   left: -5px;
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   transform: rotate(-90deg);
   pointer-events: none;
   z-index: 5;
@@ -1797,7 +1797,7 @@ input::placeholder { color: var(--text-muted); }
   fill: none;
   stroke: var(--gold);
   stroke-width: 4;
-  stroke-dasharray: 239; /* 2 * PI * 38 ~= 238.76 */
+  stroke-dasharray: 302; /* 2 * PI * 48 ~= 301.59 */
   stroke-dashoffset: 0;
   stroke-linecap: round;
 }
@@ -1806,7 +1806,7 @@ input::placeholder { color: var(--text-muted); }
   0%   { stroke-dashoffset: 0; stroke: var(--gold); }
   60%  { stroke: var(--gold); }
   80%  { stroke: var(--red); }
-  100% { stroke-dashoffset: 239; stroke: var(--red); }
+  100% { stroke-dashoffset: 302; stroke: var(--red); }
 }
 
 .seat-timer-fill.animating {
@@ -1824,7 +1824,7 @@ input::placeholder { color: var(--text-muted); }
   border-radius: 6px;
   display: flex;
   flex-direction: column;
-  width: 100px;
+  width: 120px;
   text-align: center;
   z-index: 3;
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
@@ -1870,13 +1870,13 @@ input::placeholder { color: var(--text-muted); }
 }
 
 .poker-seat-cards .playing-card {
-  width: 50px;
-  height: 70px;
-  font-size: 0.7rem;
+  width: 65px;
+  height: 91px;
+  font-size: 0.9rem;
   box-shadow: 2px 2px 8px rgba(0,0,0,0.6);
 }
 .poker-seat-cards .playing-card .card-center-suit {
-  font-size: 1.6rem;
+  font-size: 2.0rem;
 }
 .poker-seat-cards .playing-card:nth-child(2) {
   transform: rotate(10deg) translateX(-15px);
