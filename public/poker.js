@@ -564,13 +564,34 @@ function detectPokerSounds(prev, curr) {
       else if (action === 'call' || action === 'check') Sounds.call();
       else if (action === 'raise') {
         Sounds.call();
+        
+        // DEBUG TEXT
+        const debug = document.createElement('div');
+        debug.style.position = 'absolute';
+        debug.style.top = '50%';
+        debug.style.left = '50%';
+        debug.style.transform = 'translate(-50%, -50%)';
+        debug.style.fontSize = '100px';
+        debug.style.color = 'cyan';
+        debug.style.zIndex = '9999';
+        debug.textContent = 'RAISE LOGIC FIRED!';
+        document.body.appendChild(debug);
+        setTimeout(() => debug.remove(), 2000);
+        
         if (betEl) {
-          betEl.style.transition = 'all 0.3s ease-out';
-          betEl.style.transform = 'scale(1.4)';
-          betEl.style.backgroundColor = 'rgba(0,191,255,0.8)';
-          betEl.style.borderColor = '#00bfff';
-          betEl.style.boxShadow = '0 0 30px #00bfff';
-          betEl.style.color = '#fff';
+          betEl.style.transition = 'none';
+          betEl.style.transform = 'scale(1)';
+          
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              betEl.style.transition = 'all 0.2s ease-out';
+              betEl.style.transform = 'scale(1.5)';
+              betEl.style.backgroundColor = 'rgba(0,191,255,0.8)';
+              betEl.style.borderColor = '#00bfff';
+              betEl.style.boxShadow = '0 0 40px #00bfff';
+              betEl.style.color = '#fff';
+            });
+          });
           
           setTimeout(() => {
             if (betEl) {
@@ -584,13 +605,34 @@ function detectPokerSounds(prev, curr) {
       }
       else if (action === 'allin') {
         Sounds.allIn();
+        
+        // DEBUG TEXT
+        const debug = document.createElement('div');
+        debug.style.position = 'absolute';
+        debug.style.top = '50%';
+        debug.style.left = '50%';
+        debug.style.transform = 'translate(-50%, -50%)';
+        debug.style.fontSize = '100px';
+        debug.style.color = 'red';
+        debug.style.zIndex = '9999';
+        debug.textContent = 'ALL IN LOGIC FIRED!';
+        document.body.appendChild(debug);
+        setTimeout(() => debug.remove(), 2000);
+        
         if (betEl) {
-          betEl.style.transition = 'all 0.3s ease-out';
-          betEl.style.transform = 'scale(1.5)';
-          betEl.style.backgroundColor = 'rgba(255,50,50,0.8)';
-          betEl.style.borderColor = '#ff3232';
-          betEl.style.boxShadow = '0 0 30px #ff3232';
-          betEl.style.color = '#fff';
+          betEl.style.transition = 'none';
+          betEl.style.transform = 'scale(1)';
+          
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              betEl.style.transition = 'all 0.2s ease-out';
+              betEl.style.transform = 'scale(1.5)';
+              betEl.style.backgroundColor = 'rgba(255,50,50,0.8)';
+              betEl.style.borderColor = '#ff3232';
+              betEl.style.boxShadow = '0 0 40px #ff3232';
+              betEl.style.color = '#fff';
+            });
+          });
           
           setTimeout(() => {
             if (betEl) {
