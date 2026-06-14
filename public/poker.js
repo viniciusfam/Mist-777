@@ -224,9 +224,9 @@ function renderPokerScreen(state) {
            if (elapsedSec < 0) elapsedSec = 0;
            const delay = -elapsedSec;
            activeRing = `
-            <svg class="seat-timer-ring" viewBox="0 0 100 100">
-              <circle class="seat-timer-bg" cx="50" cy="50" r="48"/>
-              <circle class="seat-timer-fill animating" cx="50" cy="50" r="48" style="animation-delay: ${delay}s"/>
+            <svg class="seat-timer-ring" viewBox="0 0 130 130">
+              <circle class="seat-timer-bg" cx="65" cy="65" r="63"/>
+              <circle class="seat-timer-fill animating" cx="65" cy="65" r="63" style="animation-delay: ${delay}s"/>
             </svg>
            `;
         }

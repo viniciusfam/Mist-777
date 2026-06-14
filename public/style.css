@@ -1734,7 +1734,7 @@ input::placeholder { color: var(--text-muted); }
   top: 50%;
   left: 50%;
   width: 140px;
-  height: 180px;
+  height: 190px;
   transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
@@ -1753,14 +1753,15 @@ input::placeholder { color: var(--text-muted); }
 }
 
 .poker-avatar {
-  width: 90px;
-  height: 90px;
+  width: 120px;
+  height: 120px;
   background: var(--bg-card);
   border: 2px solid var(--border);
   border-radius: 50%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: 10px;
   font-weight: bold;
   color: var(--gold);
   font-size: 1.2rem;
@@ -1780,8 +1781,8 @@ input::placeholder { color: var(--text-muted); }
   position: absolute;
   top: -5px;
   left: -5px;
-  width: 100px;
-  height: 100px;
+  width: 130px;
+  height: 130px;
   transform: rotate(-90deg);
   pointer-events: none;
   z-index: 5;
@@ -1797,7 +1798,7 @@ input::placeholder { color: var(--text-muted); }
   fill: none;
   stroke: var(--gold);
   stroke-width: 4;
-  stroke-dasharray: 302; /* 2 * PI * 48 ~= 301.59 */
+  stroke-dasharray: 396; /* 2 * PI * 63 ~= 395.8 */
   stroke-dashoffset: 0;
   stroke-linecap: round;
 }
@@ -1806,7 +1807,7 @@ input::placeholder { color: var(--text-muted); }
   0%   { stroke-dashoffset: 0; stroke: var(--gold); }
   60%  { stroke: var(--gold); }
   80%  { stroke: var(--red); }
-  100% { stroke-dashoffset: 302; stroke: var(--red); }
+  100% { stroke-dashoffset: 396; stroke: var(--red); }
 }
 
 .seat-timer-fill.animating {
