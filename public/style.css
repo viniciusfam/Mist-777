@@ -1835,17 +1835,23 @@ input::placeholder { color: var(--text-muted); }
 .poker-seat-nick {
   background: rgba(255,255,255,0.05);
   padding: 4px 0;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 800;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   white-space: nowrap;
+  color: #ff4444;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.8), 0 0 2px #ffd700, 1px 1px 2px #000;
+  letter-spacing: 0.5px;
 }
 
 .poker-seat-chips {
   padding: 4px 0;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
+  font-weight: bold;
   font-family: var(--font-display);
-  color: var(--gold);
+  color: #68c4ee;
+  text-shadow: 0 0 6px rgba(104, 196, 238, 0.5), 1px 1px 2px #000;
+  letter-spacing: 0.5px;
 }
 
 .poker-seat-bet {
