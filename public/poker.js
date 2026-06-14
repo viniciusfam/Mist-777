@@ -565,16 +565,22 @@ function detectPokerSounds(prev, curr) {
         Sounds.call();
         if (betEl) {
           betEl.classList.remove('glow-raise', 'glow-allin');
-          void betEl.offsetWidth; // trigger reflow
-          betEl.classList.add('glow-raise');
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              betEl.classList.add('glow-raise');
+            });
+          });
         }
       }
       else if (action === 'allin') {
         Sounds.allIn();
         if (betEl) {
           betEl.classList.remove('glow-raise', 'glow-allin');
-          void betEl.offsetWidth; // trigger reflow
-          betEl.classList.add('glow-allin');
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              betEl.classList.add('glow-allin');
+            });
+          });
         }
       }
     }
