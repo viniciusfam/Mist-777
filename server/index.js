@@ -111,6 +111,7 @@ function emitPokerUpdate(room) {
     round: room.round,
     state: room.state,
     creatorId: room.creatorId,
+    serverTime: Date.now(),
     pokerStartTime: room.pokerStartTime || null,
     smallBlind: room.smallBlind || 10,
     bigBlind: room.bigBlind || 20,

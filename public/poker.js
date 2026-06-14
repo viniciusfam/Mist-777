@@ -76,7 +76,9 @@ function renderPokerScreen(state) {
       if (tournamentTimerInterval) clearInterval(tournamentTimerInterval);
       
       const updateTourneyTimer = () => {
-        const elapsed = Math.floor((Date.now() - state.pokerStartTime) / 1000);
+        const serverOffset = Date.now() - (state.serverTime || Date.now());
+        let elapsed = Math.floor((Date.now() - serverOffset - state.pokerStartTime) / 1000);
+        if (elapsed < 0) elapsed = 0; // fallback just in case
         const m = Math.floor(elapsed / 60).toString().padStart(2, '0');
         const s = (elapsed % 60).toString().padStart(2, '0');
         if (timerEl) timerEl.textContent = `${m}:${s}`;
@@ -106,10 +108,34 @@ function renderPokerScreen(state) {
       }
     }
 
+    // Evaluate winner info globally for community cards
+    let globalWinningCards = [];
+    let isShowdown = state.phase === 'showdown';
+    let notFoldedCount = state.players ? state.players.filter(x => x.status !== 'folded').length : 0;
+    
+    if (isShowdown && state.evaluations && notFoldedCount > 1) {
+      state.evaluations.forEach(ev => {
+        if (!ev.folded && state.payouts && state.payouts[ev.id] > 0) {
+          globalWinningCards.push(...ev.eval.cards);
+        }
+      });
+    }
+
     // Community Cards
     const commCardsDiv = document.getElementById('poker-community-cards');
     if (commCardsDiv) {
-      commCardsDiv.innerHTML = (state.communityCards || []).map(c => createCardHTML(c)).join('');
+      commCardsDiv.innerHTML = (state.communityCards || []).map(c => {
+         let hState = 'normal';
+         if (isShowdown && notFoldedCount > 1) {
+             if (globalWinningCards.length > 0) {
+                 const isWinningCard = globalWinningCards.some(wc => wc.rank === c.rank && wc.suit === c.suit);
+                 hState = isWinningCard ? 'winner' : 'dim';
+             } else {
+                 hState = 'dim';
+             }
+         }
+         return createCardHTML(c, hState);
+      }).join('');
     }
 
     // Seats (up to 8 players radially)
