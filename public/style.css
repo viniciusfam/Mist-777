@@ -1839,7 +1839,7 @@ input::placeholder { color: var(--text-muted); }
   font-weight: 800;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   white-space: nowrap;
-  color: #ff4444;
+  color: #cc1111;
   text-shadow: 0 0 5px rgba(255, 215, 0, 0.8), 0 0 2px #ffd700, 1px 1px 2px #000;
   letter-spacing: 0.5px;
 }
