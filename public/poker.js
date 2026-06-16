@@ -565,7 +565,8 @@ function detectPokerSounds(prev, curr) {
       const betEl = document.getElementById(`poker-bet-${p.id}`);
       
       if (action === 'fold') Sounds.fold();
-      else if (action === 'call' || action === 'check') Sounds.call();
+      else if (action === 'call') Sounds.call();
+      else if (action === 'check') Sounds.check();
       else if (action === 'raise') {
         Sounds.call();
         if (betEl) {

@@ -434,23 +434,48 @@ const Sounds = (() => {
 
   const literalCall = new Audio('/sounds/call.wav');
   literalCall.volume = 0.8;
+  const literalCheck = new Audio('/sounds/check.wav');
+  literalCheck.volume = 0.8;
   const literalFold = new Audio('/sounds/fold.mp3');
   literalFold.volume = 0.8;
 
   /**
-   * 🃏 Call — wooden table knock (literal WAV or fallback)
+   * 🃏 Call — chips tossed (clinking sound)
    */
   function call() {
     if (!enabled) return;
     literalCall.currentTime = 0;
     literalCall.play().catch(() => {
-      // Fallback
+      // Fallback: Chips clinking (high pitch, fast decay)
       const c = getCtx();
       const t = c.currentTime;
-      osc('square', 120, t, 0.05, 0.3, 0.001);
-      osc('square', 120, t + 0.15, 0.05, 0.3, 0.001);
-      noise(0.05, 0.1, 800, 'bandpass');
-      setTimeout(() => noise(0.05, 0.1, 800, 'bandpass'), 150);
+      osc('triangle', 3000, t, 0.1, 0.5, 0.001);
+      osc('sine', 4000, t, 0.1, 0.5, 0.001);
+      
+      osc('triangle', 3200, t + 0.08, 0.1, 0.5, 0.001);
+      osc('sine', 4200, t + 0.08, 0.1, 0.5, 0.001);
+    });
+  }
+
+  /**
+   * 🃏 Check — wooden table double-knock
+   */
+  function check() {
+    if (!enabled) return;
+    literalCheck.currentTime = 0;
+    literalCheck.play().catch(() => {
+      // Fallback: two quick low thumps with some wood texture
+      const c = getCtx();
+      const t = c.currentTime;
+      // First knock
+      osc('square', 80, t, 0.05, 0.3, 0.001);
+      osc('sine', 60, t, 0.1, 0.5, 0.001);
+      noise(0.04, 0.05, 600, 'bandpass');
+      
+      // Second knock
+      osc('square', 80, t + 0.15, 0.05, 0.3, 0.001);
+      osc('sine', 60, t + 0.15, 0.1, 0.5, 0.001);
+      setTimeout(() => noise(0.04, 0.05, 600, 'bandpass'), 150);
     });
   }
 
@@ -511,9 +536,12 @@ const Sounds = (() => {
     playerJoined,
     playerLeft,
     gameStart,
-    allIn,
+    playerWins,
     call,
+    check,
     fold,
+    allIn,
+    chipSelect,
     toggle,
     isEnabled,
     init: getCtx,
