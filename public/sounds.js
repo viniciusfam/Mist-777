@@ -450,14 +450,14 @@ const Sounds = (() => {
   let hasFold = true;
   literalFold.onerror = () => { hasFold = false; };
 
-  function playAudioTag(audioObj, hasFlag, fallback) {
-    if (hasFlag && audioObj.readyState >= 1) {
-      const clone = audioObj.cloneNode(true);
-      clone.volume = audioObj.volume;
-      clone.play().catch(fallback);
-    } else {
+  function playAudioTag(audioObj, hasFlag, fallback = () => {}) {
+    if (!hasFlag) {
       fallback();
+      return;
     }
+    const clone = audioObj.cloneNode(true);
+    clone.volume = audioObj.volume;
+    clone.play().catch(fallback);
   }
 
   /**
@@ -465,17 +465,7 @@ const Sounds = (() => {
    */
   function call() {
     if (!enabled) return;
-    
-    const fallback = () => {
-      const c = getCtx();
-      const t = c.currentTime;
-      osc('triangle', 3000, t, 0.1, 0.5, 0.001);
-      osc('sine', 4000, t, 0.1, 0.5, 0.001);
-      osc('triangle', 3200, t + 0.08, 0.1, 0.5, 0.001);
-      osc('sine', 4200, t + 0.08, 0.1, 0.5, 0.001);
-    };
-
-    playAudioTag(literalCall, hasCall, fallback);
+    playAudioTag(literalCall, hasCall);
   }
 
   /**
@@ -483,20 +473,7 @@ const Sounds = (() => {
    */
   function check() {
     if (!enabled) return;
-
-    const fallback = () => {
-      const c = getCtx();
-      const t = c.currentTime;
-      osc('square', 80, t, 0.05, 0.3, 0.001);
-      osc('sine', 60, t, 0.1, 0.5, 0.001);
-      noise(0.04, 0.05, 600, 'bandpass');
-      
-      osc('square', 80, t + 0.15, 0.05, 0.3, 0.001);
-      osc('sine', 60, t + 0.15, 0.1, 0.5, 0.001);
-      setTimeout(() => noise(0.04, 0.05, 600, 'bandpass'), 150);
-    };
-
-    playAudioTag(literalCheck, hasCheck, fallback);
+    playAudioTag(literalCheck, hasCheck);
   }
 
   /**
