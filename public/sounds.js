@@ -434,27 +434,40 @@ const Sounds = (() => {
 
   const literalCall = new Audio('/sounds/call.wav');
   literalCall.volume = 0.8;
+  let hasCall = true;
+  literalCall.onerror = () => { hasCall = false; };
+
   const literalCheck = new Audio('/sounds/check.wav');
   literalCheck.volume = 0.8;
+  let hasCheck = true;
+  literalCheck.onerror = () => { hasCheck = false; };
+
   const literalFold = new Audio('/sounds/fold.mp3');
   literalFold.volume = 0.8;
+  let hasFold = true;
+  literalFold.onerror = () => { hasFold = false; };
 
   /**
    * 🃏 Call — chips tossed (clinking sound)
    */
   function call() {
     if (!enabled) return;
-    literalCall.currentTime = 0;
-    literalCall.play().catch(() => {
-      // Fallback: Chips clinking (high pitch, fast decay)
+    
+    const fallback = () => {
       const c = getCtx();
       const t = c.currentTime;
       osc('triangle', 3000, t, 0.1, 0.5, 0.001);
       osc('sine', 4000, t, 0.1, 0.5, 0.001);
-      
       osc('triangle', 3200, t + 0.08, 0.1, 0.5, 0.001);
       osc('sine', 4200, t + 0.08, 0.1, 0.5, 0.001);
-    });
+    };
+
+    if (hasCall && literalCall.readyState >= 1) {
+      literalCall.currentTime = 0;
+      literalCall.play().catch(fallback);
+    } else {
+      fallback();
+    }
   }
 
   /**
@@ -462,21 +475,25 @@ const Sounds = (() => {
    */
   function check() {
     if (!enabled) return;
-    literalCheck.currentTime = 0;
-    literalCheck.play().catch(() => {
-      // Fallback: two quick low thumps with some wood texture
+
+    const fallback = () => {
       const c = getCtx();
       const t = c.currentTime;
-      // First knock
       osc('square', 80, t, 0.05, 0.3, 0.001);
       osc('sine', 60, t, 0.1, 0.5, 0.001);
       noise(0.04, 0.05, 600, 'bandpass');
       
-      // Second knock
       osc('square', 80, t + 0.15, 0.05, 0.3, 0.001);
       osc('sine', 60, t + 0.15, 0.1, 0.5, 0.001);
       setTimeout(() => noise(0.04, 0.05, 600, 'bandpass'), 150);
-    });
+    };
+
+    if (hasCheck && literalCheck.readyState >= 1) {
+      literalCheck.currentTime = 0;
+      literalCheck.play().catch(fallback);
+    } else {
+      fallback();
+    }
   }
 
   /**
@@ -500,16 +517,22 @@ const Sounds = (() => {
    */
   function fold() {
     if (!enabled) return;
-    literalFold.currentTime = 0;
-    literalFold.play().catch(() => {
-      // Fallback
+
+    const fallback = () => {
       const c = getCtx();
       const t = c.currentTime;
       osc('sawtooth', 400, t, 0.1, 0.2, 0.001);
       osc('sawtooth', 350, t + 0.1, 0.1, 0.2, 0.001);
       osc('square', 450, t + 0.2, 0.15, 0.3, 0.001);
       noise(0.1, 0.1, 2000, 'bandpass');
-    });
+    };
+
+    if (hasFold && literalFold.readyState >= 1) {
+      literalFold.currentTime = 0;
+      literalFold.play().catch(fallback);
+    } else {
+      fallback();
+    }
   }
 
   // Toggle sound on/off
