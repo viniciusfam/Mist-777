@@ -432,12 +432,12 @@ const Sounds = (() => {
     }, 480);
   }
 
-  const literalCall = new Audio('/sounds/call.wav');
+  const literalCall = new Audio('/sounds/call.mp3');
   literalCall.volume = 0.8;
   let hasCall = true;
   literalCall.onerror = () => { hasCall = false; };
 
-  const literalCheck = new Audio('/sounds/check.wav');
+  const literalCheck = new Audio('/sounds/check.mp3');
   literalCheck.volume = 0.8;
   let hasCheck = true;
   literalCheck.onerror = () => { hasCheck = false; };
