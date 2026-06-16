@@ -434,18 +434,31 @@ const Sounds = (() => {
 
   const literalCall = new Audio('/sounds/call.mp3');
   literalCall.volume = 0.8;
+  literalCall.preload = 'auto';
   let hasCall = true;
   literalCall.onerror = () => { hasCall = false; };
 
   const literalCheck = new Audio('/sounds/check.mp3');
   literalCheck.volume = 0.8;
+  literalCheck.preload = 'auto';
   let hasCheck = true;
   literalCheck.onerror = () => { hasCheck = false; };
 
   const literalFold = new Audio('/sounds/fold.mp3');
   literalFold.volume = 0.8;
+  literalFold.preload = 'auto';
   let hasFold = true;
   literalFold.onerror = () => { hasFold = false; };
+
+  function playAudioTag(audioObj, hasFlag, fallback) {
+    if (hasFlag && audioObj.readyState >= 1) {
+      const clone = audioObj.cloneNode(true);
+      clone.volume = audioObj.volume;
+      clone.play().catch(fallback);
+    } else {
+      fallback();
+    }
+  }
 
   /**
    * 🃏 Call — chips tossed (clinking sound)
@@ -462,12 +475,7 @@ const Sounds = (() => {
       osc('sine', 4200, t + 0.08, 0.1, 0.5, 0.001);
     };
 
-    if (hasCall && literalCall.readyState >= 1) {
-      literalCall.currentTime = 0;
-      literalCall.play().catch(fallback);
-    } else {
-      fallback();
-    }
+    playAudioTag(literalCall, hasCall, fallback);
   }
 
   /**
@@ -488,12 +496,7 @@ const Sounds = (() => {
       setTimeout(() => noise(0.04, 0.05, 600, 'bandpass'), 150);
     };
 
-    if (hasCheck && literalCheck.readyState >= 1) {
-      literalCheck.currentTime = 0;
-      literalCheck.play().catch(fallback);
-    } else {
-      fallback();
-    }
+    playAudioTag(literalCheck, hasCheck, fallback);
   }
 
   /**
@@ -527,12 +530,7 @@ const Sounds = (() => {
       noise(0.1, 0.1, 2000, 'bandpass');
     };
 
-    if (hasFold && literalFold.readyState >= 1) {
-      literalFold.currentTime = 0;
-      literalFold.play().catch(fallback);
-    } else {
-      fallback();
-    }
+    playAudioTag(literalFold, hasFold, fallback);
   }
 
   // Toggle sound on/off
