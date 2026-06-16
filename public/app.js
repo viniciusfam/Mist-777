@@ -29,8 +29,8 @@ document.addEventListener('click', () => Sounds.init(), { once: true });
 document.addEventListener('keydown', () => Sounds.init(), { once: true });
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let myNick = '';
-let myRoomCode = null;
+let myNick = localStorage.getItem('nick') || '';
+let myRoomCode = localStorage.getItem('roomCode') || null;
 let gameState = null;
 let timerInterval = null;
 let bjBannerTimeout = null;
@@ -178,6 +178,7 @@ document.getElementById('btn-enter').addEventListener('click', () => {
     }
     myNick = res.nick;
     if (res.token) localStorage.setItem('sessionToken', res.token);
+    localStorage.setItem('nick', res.nick);
     document.getElementById('lobby-nick-display').textContent = myNick;
     socket.emit('get_rooms', (rooms) => renderRoomsList(rooms));
     showScreen('lobby');
@@ -230,6 +231,7 @@ document.getElementById('btn-create-confirm').addEventListener('click', () => {
     }
     modalCreate.classList.remove('active');
     myRoomCode = res.room.code;
+    localStorage.setItem('roomCode', myRoomCode);
     renderWaitingRoom(res.room);
     showScreen('waiting');
   });
@@ -259,6 +261,7 @@ function joinRoom(code) {
       return;
     }
     myRoomCode = res.room.code;
+    localStorage.setItem('roomCode', myRoomCode);
     renderWaitingRoom(res.room);
     showScreen('waiting');
   });
@@ -423,6 +426,9 @@ document.getElementById('btn-copy-code').addEventListener('click', () => {
 document.getElementById('btn-leave-room').addEventListener('click', () => {
   socket.emit('leave_room', () => {
     myRoomCode = null;
+    localStorage.removeItem('roomCode');
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('nick');
     socket.emit('get_rooms', (rooms) => renderRoomsList(rooms));
     showScreen('lobby');
   });
@@ -858,6 +864,9 @@ document.getElementById('btn-back-lobby').addEventListener('click', () => {
   socket.emit('leave_room', () => {
     myRoomCode = null;
     gameState = null;
+    localStorage.removeItem('roomCode');
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('nick');
     socket.emit('get_rooms', (rooms) => renderRoomsList(rooms));
     showScreen('lobby');
   });
@@ -941,15 +950,45 @@ socket.on('game_over', (state) => {
 });
 
 socket.on('connect', () => {
-  if (myNick) {
-    // Reconnect: re-send nick
-    socket.emit('set_nick', myNick, () => {
-      if (myRoomCode) {
-        socket.emit('join_room', myRoomCode, (res) => {
-          if (res?.error) showToast('Erro ao reconectar na sala: ' + res.error);
-        });
+  const token = localStorage.getItem('sessionToken');
+  if (myNick && token) {
+    // Attempt automatic seamless reconnect
+    socket.emit('set_nick', { nick: myNick, token: token }, (res) => {
+      if (!res?.error && res.token === token) {
+        // Token valid! Auto-join room if we have one
+        if (myRoomCode) {
+          socket.emit('join_room', myRoomCode, (joinRes) => {
+            if (joinRes?.error) {
+              // Failed to join (maybe room deleted or full), reset room
+              myRoomCode = null;
+              localStorage.removeItem('roomCode');
+              socket.emit('get_rooms', (rooms) => renderRoomsList(rooms));
+              showScreen('lobby');
+            } else {
+              // Successfully reconnected to room!
+              // The server will immediately send a 'game_update' or 'poker_update' 
+              // which will switch the screen to the game.
+              showToast('Reconectado com sucesso!', 3000);
+            }
+          });
+        } else {
+          // Token valid but no room, go to lobby
+          socket.emit('get_rooms', (rooms) => renderRoomsList(rooms));
+          showScreen('lobby');
+        }
+      } else {
+        // Token invalid or expired, reset
+        localStorage.removeItem('sessionToken');
+        localStorage.removeItem('nick');
+        localStorage.removeItem('roomCode');
+        myNick = '';
+        myRoomCode = null;
+        showScreen('nick');
       }
     });
+  } else {
+    // Normal boot flow
+    showScreen('nick');
   }
 });
 
